@@ -1,2 +1,2 @@
-# smartrus
+# starsrus
 cs174a project
