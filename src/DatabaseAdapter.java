@@ -27,7 +27,7 @@ public class DatabaseAdapter
    	//connect to database
    	public void connect()
    	{
-   		try
+         try
    		{
    			//Register JDBC driver
 	      	Class.forName(JDBC_DRIVER);
@@ -37,31 +37,31 @@ public class DatabaseAdapter
 	      	conn = DriverManager.getConnection(DB_URL, USER, PASS);
 	      	//System.out.println("Connected database successfully...");
    		}
-   		catch(SQLException se)
+         catch(SQLException se)
+         {
+            //Handle errors for JDBC
+            se.printStackTrace();
+            System.exit(0); 
+         }
+         catch(Exception e)
    		{
-   			//Handle errors for JDBC
-		    se.printStackTrace();
-		    System.exit(0);
-		}
-		catch(Exception e)
-		{
-			//Handle errors for Class.forName
-      		e.printStackTrace();
-      		System.exit(0);
-		}
-		finally
-		{
-			//finally block used to close resources
-      		try
-      		{
-         		if(conn!=null)
-            		conn.close();
-      		}
-      		catch(SQLException se)
-      		{
-         		se.printStackTrace();
-         		System.exit(0);
-      		}
-		}
-	}
+   			//Handle errors for Class.forName
+         	e.printStackTrace();
+         	System.exit(0);
+   		}
+   		finally
+   		{
+            //finally block used to close resources
+            try
+            {
+               if(conn!=null)
+                  conn.close();
+         	}
+         	catch(SQLException se)
+         	{
+            	se.printStackTrace();
+            	System.exit(0);
+         	}
+   		}
+	  }
 }
