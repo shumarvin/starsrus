@@ -4,7 +4,7 @@ public class UserInterface
 {
 	private Scanner reader;                   //read in user input
 	private int account;                      //keep track of which type of account user is using
-	private DatabaseAdapter dbAdapter;        //database adapter to connect to database       
+	private DatabaseAdapter dbAdapter;        //database adapter to interface with database       
 
 	//constructor
 	public UserInterface()

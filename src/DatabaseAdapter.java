@@ -1,4 +1,4 @@
-//class that interacts with the database
+//class that interfaces with the database
 import java.sql.*;
 
 public class DatabaseAdapter
@@ -24,6 +24,7 @@ public class DatabaseAdapter
    		rs = null;
    	}
 
+   	//connect to database
    	public void connect()
    	{
    		try
