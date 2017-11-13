@@ -1,8 +1,11 @@
 public class MainRunner
 {
+	private static UserInterface userInterface;
+	
 	public static void main(String[]  args)
 	{
-		System.out.println("main program goes here.");
+		userInterface = new UserInterface();
+		userInterface.showTitleScreen();
 
 		System.exit(0);
 	}
