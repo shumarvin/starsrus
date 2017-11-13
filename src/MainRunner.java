@@ -5,7 +5,7 @@ public class MainRunner
 	public static void main(String[]  args)
 	{
 		userInterface = new UserInterface();
-		userInterface.showTitleScreen();
+		userInterface.start();
 
 		System.exit(0);
 	}

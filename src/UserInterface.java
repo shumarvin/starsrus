@@ -4,13 +4,19 @@ public class UserInterface
 {
 	private Scanner reader;                   //read in user input
 	private int account;                      //keep track of which type of account user is using
+	private DatabaseAdapter dbAdapter;        //database adapter to connect to database       
 
+	//constructor
 	public UserInterface()
 	{
 		account = -1;
 		reader = new Scanner(System.in);
+		dbAdapter = new DatabaseAdapter();
+		dbAdapter.connect();
 	}
-	public void showTitleScreen()
+
+	//starts program with title and login screen
+	public void start()
 	{
 		System.out.println("*************************");
 		System.out.println("Welcome to Stars'R'Us!");
@@ -37,10 +43,20 @@ public class UserInterface
 					break;
 			case 3: doCreateAccount();
 					break;
-			default: 
+			default: quit();
 		}
 	}
 
+	private void showLoginChoices()
+	{
+		System.out.println();
+		System.out.println("Please choose one of the following:");
+		System.out.println("1. Log in (Buyer)");
+		System.out.println("2. Log in (Manager)");
+		System.out.println("3. Create an Account");
+		System.out.println("4. Quit");
+		System.out.println();	
+	}
 	private void doBuyerLogin()
 	{
 		System.out.println("buyer login");
@@ -58,14 +74,5 @@ public class UserInterface
 		System.out.println("Goodbye");
 		System.exit(0);
 	}
-	private void showLoginChoices()
-	{
-		System.out.println();
-		System.out.println("Please choose one of the following:");
-		System.out.println("1. Log in (Buyer)");
-		System.out.println("2. Log in (Manager)");
-		System.out.println("3. Create an Account");
-		System.out.println("4. Quit");
-		System.out.println();	
-	}
+	
 }

@@ -1,0 +1,66 @@
+//class that interacts with the database
+import java.sql.*;
+
+public class DatabaseAdapter
+{
+	// JDBC driver name and database URL
+   	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+   	static final String DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/marvinshuDB";
+
+   	//  Database credentials
+   	static final String USER = "marvinshu";
+   	static final String PASS = "477";
+
+   	//connection, query, and result variables
+   	Connection conn;
+   	Statement stmt;
+   	ResultSet rs;
+
+   	//constructor
+   	public DatabaseAdapter()
+   	{
+   		Connection conn = null;
+   		Statement stmt = null;
+   		rs = null;
+   	}
+
+   	public void connect()
+   	{
+   		try
+   		{
+   			//Register JDBC driver
+	      	Class.forName(JDBC_DRIVER);
+
+	      	//Open a connection
+	      	//System.out.println("Connecting to the database...");
+	      	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	      	//System.out.println("Connected database successfully...");
+   		}
+   		catch(SQLException se)
+   		{
+   			//Handle errors for JDBC
+		    se.printStackTrace();
+		    System.exit(0);
+		}
+		catch(Exception e)
+		{
+			//Handle errors for Class.forName
+      		e.printStackTrace();
+      		System.exit(0);
+		}
+		finally
+		{
+			//finally block used to close resources
+      		try
+      		{
+         		if(conn!=null)
+            		conn.close();
+      		}
+      		catch(SQLException se)
+      		{
+         		se.printStackTrace();
+         		System.exit(0);
+      		}
+		}
+	}
+}
