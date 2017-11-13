@@ -4,17 +4,17 @@ import java.sql.*;
 public class DatabaseAdapter
 {
   // JDBC driver name and database URL
-  static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
- 	static final String DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/marvinshuDB";
+  private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  private static final String DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/marvinshuDB";
 
- 	//  Database credentials
- 	static final String USER = "marvinshu";
- 	static final String PASS = "477";
+  //  Database credentials
+  private static final String USER = "marvinshu";
+  private static final String PASS = "477";
 
- 	//connection, query, and result variables
- 	Connection conn;
- 	Statement stmt;
- 	ResultSet rs;
+  //connection, query, and result variables
+  private Connection conn;
+  private Statement stmt;
+  private ResultSet rs;
 
  	//constructor
  	public DatabaseAdapter()
