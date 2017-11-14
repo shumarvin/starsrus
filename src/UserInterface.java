@@ -24,7 +24,7 @@ public class UserInterface
 		System.out.println("Welcome to Stars'R'Us!");
 		System.out.println("*************************");
 
-		//start login process
+		//start login process here 
 		showLoginChoices();
 		try
 		{
@@ -54,7 +54,7 @@ public class UserInterface
 			System.out.println("Error! Invalid Input!");
 		}
 
-		
+
 	}
 
 	private void showLoginChoices()
