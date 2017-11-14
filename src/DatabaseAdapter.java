@@ -50,69 +50,75 @@ public class DatabaseAdapter
             System.exit(0);
  		}
     }
-  //close database connection
-  public void close()
-  {
-    try
+    //close database connection
+    public void close()
     {
-        //close statement
-        if(stmt != null)
-            stmt.close();
-    }
-    catch(SQLException se)
-    {
-        se.printStackTrace();
-    }
-    try
-    {
-        //close connection
-        if(conn!=null)
+        try
         {
-            //System.out.println("Closing Connection...");
-            conn.close();
-            //System.out.println("Connection Closed.");
+            //close statement
+            if(stmt != null)
+                stmt.close();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        try
+        {
+            //close connection
+            if(conn!=null)
+            {
+                //System.out.println("Closing Connection...");
+                conn.close();
+                //System.out.println("Connection Closed.");
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            System.exit(0);
         }
     }
-    catch(SQLException se)
+    /*
+        Queries the database for the account associated with the username
+        @param accountType the type of account (Customer or Manager)
+        @param username,password the username and password
+        @return Account object with all its fields initiazled if found, 
+                default Account object if username/password incorrect 
+    */
+    public Account queryAccount(int accountType, String username, String password)
     {
-        se.printStackTrace();
-        System.exit(0);
-    }
-  }
-    
-  public Account getAccount(int accountType, String username, String password)
-  {
-    connect();
-    //create account that will be returned
-    Account account = new Account();
-    //create query
-    String sql = "";
-    try
-    {
-        stmt = conn.createStatement();
-        //customer login
-        if(accountType == 0)
-            sql = "SELECT * FROM Customer WHERE username = " + username;
-        else
-            sql = "SELECT * FROM Manager WHERE username = " + username;
-
-        //execute query
-        rs = stmt.executeQuery(sql);
-
-        //process query 
-        if(rs.next())
+        connect();
+        //create account that will be returned
+        Account account = new Account();
+        //create query
+        String sql = "";
+        try
         {
-            account = new Account(username, password, rs.getString("name"), 
-            rs.getString("state"), rs.getString("phone"), rs.getString("email"),
-            rs.getInt("taxid"));
+            stmt = conn.createStatement();
+            //customer login
+            if(accountType == 0)
+                sql = "SELECT * FROM Customer WHERE username = " + username;
+            else
+                sql = "SELECT * FROM Manager WHERE username = " + username;
+
+            //execute query
+            rs = stmt.executeQuery(sql);
+
+            //process query 
+            if(rs.next())
+            {
+                account = new Account(username, password, rs.getString("name"), 
+                rs.getString("state"), rs.getString("phone"), rs.getString("email"),
+                rs.getInt("taxid"));
+            }
         }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            System.exit(0);
+        }
+        close();
+        return account;
     }
-    catch(SQLException se)
-    {
-        se.printStackTrace();
-        System.exit(0);
-    }
-    close();
-    return account;
-  }
 }
