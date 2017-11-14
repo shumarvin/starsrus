@@ -15,7 +15,6 @@ public class UserInterface
 		account = -1;
 		reader = new Scanner(System.in);
 		dbAdapter = new DatabaseAdapter();
-		dbAdapter.connect();
 	}
 
 	//starts program with title and login screen
@@ -25,6 +24,9 @@ public class UserInterface
 		System.out.println("*************************");
 		System.out.println("Welcome to Stars'R'Us!");
 		System.out.println("*************************");
+
+		//dbAdapter.connect();
+		//dbAdapter.close();
 
 		//start login process here
 		showLoginChoices();
@@ -43,7 +45,7 @@ public class UserInterface
 			//switch on choice
 			switch(choice)
 			{
-				case 1: doBuyerLogin();
+				case 1: doCustomerLogin();
 						break;
 				case 2: doManagerLogin();
 						break;
@@ -56,43 +58,48 @@ public class UserInterface
 		{
 			System.out.println("Error! Invalid Input!");
 		}
-
-
 	}
 
+	//user interface for login
 	private void showLoginChoices()
 	{
 		System.out.println();
 		System.out.println("Please choose one of the following:");
-		System.out.println("1. Log in (Buyer)");
+		System.out.println("1. Log in (Customer)");
 		System.out.println("2. Log in (Manager)");
 		System.out.println("3. Create an Account");
 		System.out.println("4. Quit");
 		System.out.println();
 	}
-	private void doBuyerLogin()
+	//customer login user interface
+	private void doCustomerLogin()
 	{
 		System.out.println("\n-------------------------");
-		System.out.println("       Buyer Login       ");
+		System.out.println("       Customer Login       ");
 		System.out.println("-------------------------");
-		System.out.print("Buyer Username: ");
+
+		//read in customer username and password
+		System.out.print("Customer Username: ");
 		reader.nextLine();
-		String buyerUsername = reader.nextLine();
-		char[] buyerPassCharArr = console.readPassword("Buyer Password: ");
-		String buyerPassword = new String(buyerPassCharArr);
-		System.out.println("User is: " + buyerUsername + "Pass is: " + buyerPassword);
+		String customerUsername = reader.nextLine();
+		char[] customerPassCharArr = console.readPassword("Customer Password: ");
+		String customerPassword = new String(customerPassCharArr);
+		System.out.println("User is: " + customerUsername + " Pass is: " + customerPassword);
 	}
+	//manager login user interface
 	private void doManagerLogin()
 	{
 		System.out.println("\n-------------------------");
 		System.out.println("      Manager Login      ");
 		System.out.println("-------------------------");
+
+		//read in manager username and password
 		System.out.print("Manager Username: ");
 		reader.nextLine();
 		String managerUsername = reader.nextLine();
 		char[] managerPassCharArr = console.readPassword("Manager Password: ");
 		String managerPassword = new String(managerPassCharArr);
-		System.out.println("User is: " + managerUsername + "  " + "Pass is: " + managerPassword);
+		System.out.println("User is: " + managerUsername + "  " + " Pass is: " + managerPassword);
 	}
 	private void doCreateAccount()
 	{
