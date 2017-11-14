@@ -4,7 +4,7 @@ public class UserInterface
 {
 	private Scanner reader;                   //read in user input
 	private int account;                      //keep track of which type of account user is using
-	private DatabaseAdapter dbAdapter;        //database adapter to interface with database       
+	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 
 	//constructor
 	public UserInterface()
@@ -18,12 +18,14 @@ public class UserInterface
 	//starts program with title and login screen
 	public void start()
 	{
+		System.out.println("");
 		System.out.println("*************************");
 		System.out.println("Welcome to Stars'R'Us!");
 		System.out.println("*************************");
 
 		//start login process
 		showLoginChoices();
+		System.out.print("Input: ");
 		int choice = reader.nextInt();
 
 		//handle invalid input
@@ -55,11 +57,14 @@ public class UserInterface
 		System.out.println("2. Log in (Manager)");
 		System.out.println("3. Create an Account");
 		System.out.println("4. Quit");
-		System.out.println();	
+		System.out.println();
 	}
 	private void doBuyerLogin()
 	{
-		System.out.println("buyer login");
+		System.out.println("\n*************************");
+		System.out.println("       Buyer Login       ");
+		System.out.println("*************************");
+
 	}
 	private void doManagerLogin()
 	{
@@ -74,5 +79,5 @@ public class UserInterface
 		System.out.println("Goodbye");
 		System.exit(0);
 	}
-	
+
 }
