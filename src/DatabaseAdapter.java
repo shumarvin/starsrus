@@ -83,14 +83,12 @@ public class DatabaseAdapter
         Queries the database for the account associated with the username
         @param accountType the type of account (Customer or Manager)
         @param username,password the username and password
-        @return Account object with all its fields initiazled if found, 
+        @return Account object with all its fields initialized if found, 
                 default Account object if username/password incorrect 
     */
     public Account queryAccount(int accountType, String username, String password)
     {
         connect();
-        //create account that will be returned
-        Account account = new Account();
         //create query
         String sql = "";
         try
@@ -105,12 +103,17 @@ public class DatabaseAdapter
             //execute query
             rs = stmt.executeQuery(sql);
 
-            //process query 
+            //process query
+            /*
+                If rs has something, then that is a valid username-password. 
+                If it doesn't, then it was invalid.
+            */ 
             if(rs.next())
             {
-                account = new Account(username, password, rs.getString("name"), 
-                rs.getString("state"), rs.getString("phone"), rs.getString("email"),
-                rs.getInt("taxid"));
+                return new Account(username, password, rs.getString("firstName"), 
+                rs.getString("lastName"),rs.getString("state"), rs.getString("phone"), 
+                rs.getString("email"),rs.getInt("taxid"));
+
             }
         }
         catch(SQLException se)
@@ -119,6 +122,6 @@ public class DatabaseAdapter
             System.exit(0);
         }
         close();
-        return account;
+        return new Account();
     }
 }
