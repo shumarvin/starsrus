@@ -17,7 +17,7 @@ public class Account
 		state = "";
 		phone = "";
 		email = "";
-		taxid = -1
+		taxid = -1;
 	}
 	//constructor
 	public Account(String aUserName, String aPassword, String aName, 
