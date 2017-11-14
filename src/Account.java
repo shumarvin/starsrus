@@ -2,7 +2,8 @@ public class Account
 {
 	private String username;
 	private String password;
-	private String name;
+	private String firstName;
+	private String lastName;
 	private String state;
 	private String phone;
 	private String email;
@@ -13,19 +14,21 @@ public class Account
 	{
 		username = "";
 		password = "";
-		name = "";
+		firstName = "";
+		lastName = "";
 		state = "";
 		phone = "";
 		email = "";
 		taxid = -1;
 	}
 	//constructor
-	public Account(String aUserName, String aPassword, String aName, 
-		String aState, String aPhone, String aEmail, int aTaxid)
+	public Account(String aUserName, String aPassword, String aFirstName, 
+		String aLastName, String aState, String aPhone, String aEmail, int aTaxid)
 	{
 		username = aUserName;
 		password = aPassword;
-		name = aName;
+		firstName = aFirstName;
+		lastName = aLastName;
 		state = aState;
 		phone = aPhone;
 		email = aEmail;
@@ -44,9 +47,13 @@ public class Account
 	{
 		return password;
 	}
-	public String getName()
+	public String getFirstName()
 	{
-		return name;
+		return firstName;
+	}
+	public String getLastName()
+	{
+		return lastName;
 	}
 	public String getState()
 	{
