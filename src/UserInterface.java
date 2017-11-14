@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class UserInterface
 {
@@ -25,28 +26,35 @@ public class UserInterface
 
 		//start login process
 		showLoginChoices();
-		System.out.print("Input: ");
-		int choice = reader.nextInt();
+		try
+		{
+			int choice = reader.nextInt();
+			//handle invalid input
+			while(choice < 1 || choice > 4)
+			{
+				System.out.println("Please choose one of the 4 options above.");
+				showLoginChoices();
+				choice = reader.nextInt();
+			}
 
-		//handle invalid input
-		while(choice < 1 || choice > 4)
+			//switch on choice
+			switch(choice)
+			{
+				case 1: doBuyerLogin();
+						break;
+				case 2: doManagerLogin();
+						break;
+				case 3: doCreateAccount();
+						break;
+				default: quit();
+			}
+		}
+		catch(InputMismatchException exception)
 		{
 			System.out.println("Error! Invalid Input!");
-			showLoginChoices();
-			choice = reader.nextInt();
 		}
 
-		//switch on choice
-		switch(choice)
-		{
-			case 1: doBuyerLogin();
-					break;
-			case 2: doManagerLogin();
-					break;
-			case 3: doCreateAccount();
-					break;
-			default: quit();
-		}
+		
 	}
 
 	private void showLoginChoices()
