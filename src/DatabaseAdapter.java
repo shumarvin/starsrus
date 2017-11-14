@@ -16,19 +16,19 @@ public class DatabaseAdapter
     private Statement stmt;
     private ResultSet rs;
 
- 	//constructor
- 	public DatabaseAdapter()
- 	{
- 		Connection conn = null;
- 		Statement stmt = null;
- 		rs = null;
- 	}
+    //constructor
+    public DatabaseAdapter()
+    {
+        Connection conn = null;
+        Statement stmt = null;
+        rs = null;
+    }
 
- 	//connect to database, make sure to call close afterwards
- 	public void connect()
- 	{
+    //connect to database, make sure to call close afterwards
+    public void connect()
+    {
         try
- 		{
+        {
             //Register JDBC driver
             Class.forName(JDBC_DRIVER);
 
@@ -36,7 +36,7 @@ public class DatabaseAdapter
             //System.out.println("Connecting to the database...");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
             //System.out.println("Connected database successfully...");
- 		}
+        }
         catch(SQLException se)
         {
             //Handle errors for JDBC
@@ -44,7 +44,7 @@ public class DatabaseAdapter
             System.exit(0);
         }
         catch(Exception e)
- 		{
+        {
             //Handle errors for Class.forName
             e.printStackTrace();
             System.exit(0);
