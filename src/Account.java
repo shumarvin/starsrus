@@ -31,4 +31,37 @@ public class Account
 		email = aEmail;
 		taxid = aTaxid;
 	}
+
+
+	/*
+		Getters
+	*/
+	public String getUsername()
+	{
+		return username;
+	}
+	public String getPassword()
+	{
+		return password;
+	}
+	public String getName()
+	{
+		return name;
+	}
+	public String getState()
+	{
+		return state;
+	}
+	public String getPhone()
+	{
+		return phone;
+	}
+	public String getEmail()
+	{
+		return email;
+	}
+	public int getTaxId()
+	{
+		return taxid;
+	}
 }
