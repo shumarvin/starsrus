@@ -73,6 +73,7 @@ public class UserInterface
 	private void doManagerLogin()
 	{
 		System.out.println("manager login");
+		System.out.println("Enter username: ");
 	}
 	private void doCreateAccount()
 	{
