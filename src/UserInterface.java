@@ -1,11 +1,13 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
+import java.io.Console;
 
 public class UserInterface
 {
 	private Scanner reader;                   //read in user input
 	private int account;                      //keep track of which type of account user is using
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
+	Console console = System.console();
 
 	//constructor
 	public UserInterface()
@@ -24,10 +26,11 @@ public class UserInterface
 		System.out.println("Welcome to Stars'R'Us!");
 		System.out.println("*************************");
 
-		//start login process here 
+		//start login process here
 		showLoginChoices();
 		try
 		{
+			System.out.print("Input: ");
 			int choice = reader.nextInt();
 			//handle invalid input
 			while(choice < 1 || choice > 4)
@@ -69,16 +72,27 @@ public class UserInterface
 	}
 	private void doBuyerLogin()
 	{
-		System.out.println("\n*************************");
+		System.out.println("\n-------------------------");
 		System.out.println("       Buyer Login       ");
-		System.out.println("*************************");
-
+		System.out.println("-------------------------");
+		System.out.print("Buyer Username: ");
+		reader.nextLine();
+		String buyerUsername = reader.nextLine();
+		char[] buyerPassCharArr = console.readPassword("Buyer Password: ");
+		String buyerPassword = new String(buyerPassCharArr);
+		System.out.println("User is: " + buyerUsername + "Pass is: " + buyerPassword);
 	}
 	private void doManagerLogin()
 	{
-		System.out.println("manager login");
-		System.out.println("Enter Username: ");
-		System.out.println("Enter Password: ");
+		System.out.println("\n-------------------------");
+		System.out.println("      Manager Login      ");
+		System.out.println("-------------------------");
+		System.out.print("Manager Username: ");
+		reader.nextLine();
+		String managerUsername = reader.nextLine();
+		char[] managerPassCharArr = console.readPassword("Manager Password: ");
+		String managerPassword = new String(managerPassCharArr);
+		System.out.println("User is: " + managerUsername + "  " + "Pass is: " + managerPassword);
 	}
 	private void doCreateAccount()
 	{
