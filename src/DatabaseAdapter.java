@@ -67,26 +67,33 @@ public class DatabaseAdapter
 
   public Account getAccount(int accountType, String username, String password)
   {
-   //create query
+   Account account = new Account();
+  //create query
    String sql = "";
-   stmt = conn.createStatement();
-   //customer login
-   if(accountType == 0)
-      sql = "SELECT username, password FROM Customer WHERE username = " + username;
-   else
-      sql = "SELECT username, password FROM Manager WHERE username = " + username;
-
-   //execute query
-   rs = stmt.executeQuery(sql);
-
-
-   if(rs.next())
+   try
    {
-      Account account = new Account();
+      stmt = conn.createStatement();
+      //customer login
+      if(accountType == 0)
+         sql = "SELECT * FROM Customer WHERE username = " + username;
+      else
+         sql = "SELECT * FROM Manager WHERE username = " + username;
+
+      //execute query
+      rs = stmt.executeQuery(sql);
+
+
+      if(rs.next())
+      {
+         account = new Account(username, password, rs.getString("name"), 
+            rs.getString("state"), rs.getString("phone"), rs.getString("email"),
+            rs.getInt("taxid"));
+      }
    }
-   else
+   catch(SQLException se)
    {
-      return new Account();
+      se.printStackTrace();
    }
+   return account;
   }
 }
