@@ -64,4 +64,29 @@ public class DatabaseAdapter
       }
  		}
   }
+
+  public Account getAccount(int accountType, String username, String password)
+  {
+   //create query
+   String sql = "";
+   stmt = conn.createStatement();
+   //customer login
+   if(accountType == 0)
+      sql = "SELECT username, password FROM Customer WHERE username = " + username;
+   else
+      sql = "SELECT username, password FROM Manager WHERE username = " + username;
+
+   //execute query
+   rs = stmt.executeQuery(sql);
+
+
+   if(rs.next())
+   {
+      Account account = new Account();
+   }
+   else
+   {
+      return new Account();
+   }
+  }
 }
