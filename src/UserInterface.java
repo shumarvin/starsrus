@@ -84,7 +84,20 @@ public class UserInterface
 		String customerUsername = reader.nextLine();
 		char[] customerPassCharArr = console.readPassword("Customer Password: ");
 		String customerPassword = new String(customerPassCharArr);
-		System.out.println("User is: " + customerUsername + " Pass is: " + customerPassword);
+		//System.out.println("User is: " + customerUsername + " Pass is: " + customerPassword);
+
+		//query database and see if it's valid
+		Account currentAccount = dbAdapter.queryAccount(0, customerUsername, customerPassword);
+
+		if(currentAccount.getUsername() == "")
+		{
+			System.out.println("Invalid username or password. Please try again.");
+		}
+		else
+		{
+			System.out.println("Welcome " + currentAccount.getFirstName() + " " +
+								currentAccount.getLastName() + "!");
+		}
 	}
 	//manager login user interface
 	private void doManagerLogin()
@@ -99,7 +112,7 @@ public class UserInterface
 		String managerUsername = reader.nextLine();
 		char[] managerPassCharArr = console.readPassword("Manager Password: ");
 		String managerPassword = new String(managerPassCharArr);
-		System.out.println("User is: " + managerUsername + "  " + " Pass is: " + managerPassword);
+		//System.out.println("User is: " + managerUsername + "  " + " Pass is: " + managerPassword);
 	}
 	private void doCreateAccount()
 	{

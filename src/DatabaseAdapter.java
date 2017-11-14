@@ -14,6 +14,7 @@ public class DatabaseAdapter
     //connection, query, and result variables
     private Connection conn;
     private Statement stmt;
+    private PreparedStatement prepstmt;
     private ResultSet rs;
 
     //constructor
@@ -41,13 +42,11 @@ public class DatabaseAdapter
         {
             //Handle errors for JDBC
             se.printStackTrace();
-            System.exit(0);
         }
         catch(Exception e)
         {
             //Handle errors for Class.forName
             e.printStackTrace();
-            System.exit(0);
  		}
     }
     //close database connection
@@ -58,6 +57,16 @@ public class DatabaseAdapter
             //close statement
             if(stmt != null)
                 stmt.close();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        try
+        {
+            //close prepared statement
+            if(prepstmt != null)
+                prepstmt.close();
         }
         catch(SQLException se)
         {
@@ -76,7 +85,6 @@ public class DatabaseAdapter
         catch(SQLException se)
         {
             se.printStackTrace();
-            System.exit(0);
         }
     }
     /*
@@ -93,15 +101,19 @@ public class DatabaseAdapter
         String sql = "";
         try
         {
-            stmt = conn.createStatement();
-            //customer login
+            //customer/manager login query
             if(accountType == 0)
-                sql = "SELECT * FROM Customer WHERE username = " + username;
+                sql = "SELECT * FROM Customer WHERE username=? AND password=?";
             else
-                sql = "SELECT * FROM Manager WHERE username = " + username;
+                sql = "SELECT * FROM Manager WHERE username=? AND password=?";
+
+            //use prepared statement
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            prepstmt.setString(2, password);
 
             //execute query
-            rs = stmt.executeQuery(sql);
+            rs = prepstmt.executeQuery();
 
             //process query
             /*
@@ -119,9 +131,11 @@ public class DatabaseAdapter
         catch(SQLException se)
         {
             se.printStackTrace();
-            System.exit(0);
         }
-        close();
+        finally
+        {
+            close();
+        }
         return new Account();
     }
 }
