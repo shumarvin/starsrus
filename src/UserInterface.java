@@ -7,7 +7,7 @@ public class UserInterface
 	private Scanner reader;                   //read in user input
 	private int account;                      //keep track of which type of account user is using
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
-	Console console = System.console();
+	private Console console; 
 
 	//constructor
 	public UserInterface()
@@ -15,6 +15,7 @@ public class UserInterface
 		account = -1;
 		reader = new Scanner(System.in);
 		dbAdapter = new DatabaseAdapter();
+		console = System.console();
 	}
 
 	//starts program with title and login screen
@@ -84,20 +85,30 @@ public class UserInterface
 		String customerUsername = reader.nextLine();
 		char[] customerPassCharArr = console.readPassword("Customer Password: ");
 		String customerPassword = new String(customerPassCharArr);
+
 		//System.out.println("User is: " + customerUsername + " Pass is: " + customerPassword);
 
 		//query database and see if it's valid
 		Account currentAccount = dbAdapter.queryAccount(0, customerUsername, customerPassword);
 
-		if(currentAccount.getUsername() == "")
+		//if invalid username/password, have user try again
+		while(currentAccount.getUsername() == "")
 		{
 			System.out.println("Invalid username or password. Please try again.");
+			System.out.println();
+
+			//read in customer username and password
+			System.out.print("Customer Username: ");
+			customerUsername = reader.nextLine();
+			customerPassCharArr = console.readPassword("Customer Password: ");
+			customerPassword = new String(customerPassCharArr);
+
+			currentAccount = dbAdapter.queryAccount(0, customerUsername, customerPassword);
 		}
-		else
-		{
-			System.out.println("Welcome " + currentAccount.getFirstName() + " " +
-								currentAccount.getLastName() + "!");
-		}
+		
+		System.out.println("Welcome " + currentAccount.getFirstName() + " " +
+				currentAccount.getLastName() + "!");
+		
 	}
 	//manager login user interface
 	private void doManagerLogin()
@@ -123,5 +134,4 @@ public class UserInterface
 		System.out.println("Goodbye");
 		System.exit(0);
 	}
-
 }
