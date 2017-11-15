@@ -5,14 +5,13 @@ import java.io.Console;
 public class UserInterface
 {
 	private Scanner reader;                   //read in user input
-	private int account;                      //keep track of which type of account user is using
+	private Account account;                  //user's account
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
-	private Console console; 
+	private Console console;                  //console to read in password
 
 	//constructor
 	public UserInterface()
 	{
-		account = -1;
 		reader = new Scanner(System.in);
 		dbAdapter = new DatabaseAdapter();
 		console = System.console();
@@ -89,10 +88,10 @@ public class UserInterface
 		//System.out.println("User is: " + customerUsername + " Pass is: " + customerPassword);
 
 		//query database and see if it's valid
-		Account currentAccount = dbAdapter.queryAccount(0, customerUsername, customerPassword);
+		account = dbAdapter.queryAccount(0, customerUsername, customerPassword);
 
 		//if invalid username/password, have user try again
-		while(currentAccount.getUsername() == "")
+		while(account.getUsername() == "")
 		{
 			System.out.println("Invalid username or password. Please try again.");
 			System.out.println();
@@ -102,12 +101,11 @@ public class UserInterface
 			customerUsername = reader.nextLine();
 			customerPassCharArr = console.readPassword("Customer Password: ");
 			customerPassword = new String(customerPassCharArr);
-
-			currentAccount = dbAdapter.queryAccount(0, customerUsername, customerPassword);
+			account = dbAdapter.queryAccount(0, customerUsername, customerPassword);
 		}
 		
-		System.out.println("Welcome " + currentAccount.getFirstName() + " " +
-				currentAccount.getLastName() + "!");
+		System.out.println("Welcome " + account.getFirstName() + " " +
+				account.getLastName() + "!");
 		
 	}
 	//manager login user interface
