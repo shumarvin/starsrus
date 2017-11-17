@@ -29,7 +29,13 @@ public class UserInterface
 		//start login process here
 		while(true)
 		{
-			showLoginChoices();
+			System.out.println();
+			System.out.println("Please choose one of the following:");
+			System.out.println("1. Log in (Customer)");
+			System.out.println("2. Log in (Manager)");
+			System.out.println("3. Create an Account");
+			System.out.println("4. Quit");
+			System.out.println();
 			System.out.print("Input: ");
 			//make sure input is int
 			if(!reader.hasNextInt())
@@ -44,7 +50,7 @@ public class UserInterface
 				//handle invalid input
 				if(choice < 1 || choice > 4)
 				{
-					System.out.println("Please choose one of the 4 options below.");
+					System.out.println("Invalid input. Please choose one of the 4 options below.");
 					continue;
 				}
 
@@ -61,18 +67,6 @@ public class UserInterface
 				}
 			}	
 		}
-	}
-
-	//user interface for login
-	private void showLoginChoices()
-	{
-		System.out.println();
-		System.out.println("Please choose one of the following:");
-		System.out.println("1. Log in (Customer)");
-		System.out.println("2. Log in (Manager)");
-		System.out.println("3. Create an Account");
-		System.out.println("4. Quit");
-		System.out.println();
 	}
 	//customer login user interface
 	private void doCustomerLogin()
@@ -135,9 +129,7 @@ public class UserInterface
 				account.getLastName() + "!");
 		System.out.println();
 
-		System.out.println("What would you like to do today?");
-		System.out.println();
-
+		
 		/*
 			Make trader interface a loop so that they can continue to use 
 			the program after making their first action and so that we don't
@@ -145,6 +137,8 @@ public class UserInterface
 		*/
 		while(true)
 		{
+			System.out.println("What would you like to do today?");
+			System.out.println();
 			showTraderInterfaceChoices();
 			try
 			{
@@ -188,8 +182,6 @@ public class UserInterface
 			}
 			System.out.println();
 		}
-		
-
 	}
 	//trader user interface choices
 	private void showTraderInterfaceChoices()
@@ -204,14 +196,40 @@ public class UserInterface
 		System.out.println("8. List Movie Information");
 		System.out.println("9. Log out");
 	}
+	//deposit user interface
 	private void showDeposit()
 	{
-		//System.out.println()
-		System.out.println("How much would you like to deposit?");
-		//depositAmount = reader.nextDouble();
-		//System.out.println("You are depositing $" + depositAmount + ". Is
-						//this the correct amount?");
-		//dbAdapter.deposit(account, depositAmount);
+		while(true)
+		{
+			System.out.println();
+			System.out.println("How much would you like to deposit?");
+			System.out.print("Input: ");
+			//check for non-double input
+			if(!reader.hasNextDouble())
+			{   
+				System.out.println("Invalid input. Please try again.");
+				reader.nextLine();
+				continue;
+			}
+			else
+			{
+				double depositAmount = reader.nextDouble();
+				reader.nextLine();
+				//confirm deposit
+				System.out.println("You are depositing $" + depositAmount + ". Is this the correct amount? (y/n)");
+				System.out.print("Input: ");
+				String confirm = reader.next();
+				if(confirm.equals("y"))
+				{
+					//update database
+					//dbAdapter.deposit(account, depositAmount);
+					System.out.println("Deposit Successful!");
+					break;
+				}
+				else
+					continue;
+			}	
+		}
 	}
 	private void showWithdraw()
 	{
