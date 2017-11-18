@@ -194,16 +194,17 @@ public class UserInterface
 	//deposit user interface
 	private void showDeposit()
 	{
+		System.out.println();
 		while(true)
 		{
-			System.out.println();
 			System.out.println("How much would you like to deposit?");
+			System.out.println();
 			System.out.print("Input: ");
 			//check for non-double input
 			if(!reader.hasNextDouble())
 			{   
 				System.out.println("Invalid input. Please try again.");
-				reader.nextLine();
+				reader.next();
 				continue;
 			}
 			else
