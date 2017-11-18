@@ -139,19 +139,32 @@ public class UserInterface
 		{
 			System.out.println("What would you like to do today?");
 			System.out.println();
-			showTraderInterfaceChoices();
-			try
+			System.out.println("1. Deposit into Market Account");
+			System.out.println("2. Withdraw from Market Account");
+			System.out.println("3. Buy Stocks");
+			System.out.println("4. Sell Stocks");
+			System.out.println("5. Show Market Account balance");
+			System.out.println("6. Show Stock Transaction History");
+			System.out.println("7. List Current Stock Price");
+			System.out.println("8. List Movie Information");
+			System.out.println("9. Log out");
+			System.out.println();
+			System.out.print("Input: ");
+			//check for non-int input
+			if(!reader.hasNextInt())
 			{
-				System.out.print("Input: ");
+				System.out.println("Error! Invalid Input!");
+				reader.nextLine();
+				continue;
+			}
+			else
+			{
 				int choice = reader.nextInt();
 				//handle invalid input
-				while(choice < 1 || choice > 9)
+				if(choice < 1 || choice > 9)
 				{
-					System.out.println();
-					System.out.println("Please choose one of the 9 options above.");
-					showTraderInterfaceChoices();
-					System.out.print("Input: ");
-					choice = reader.nextInt();
+					System.out.println("Invalid input. Please choose one of the 9 options below.");
+					continue;
 				}
 
 				//switch on choice
@@ -176,25 +189,7 @@ public class UserInterface
 					default: quit();
 				}
 			}
-			catch(InputMismatchException exception)
-			{
-				System.out.println("Error! Invalid Input!");
-			}
-			System.out.println();
 		}
-	}
-	//trader user interface choices
-	private void showTraderInterfaceChoices()
-	{
-		System.out.println("1. Deposit into Market Account");
-		System.out.println("2. Withdraw from Market Account");
-		System.out.println("3. Buy Stocks");
-		System.out.println("4. Sell Stocks");
-		System.out.println("5. Show Market Account balance");
-		System.out.println("6. Show Stock Transaction History");
-		System.out.println("7. List Current Stock Price");
-		System.out.println("8. List Movie Information");
-		System.out.println("9. Log out");
 	}
 	//deposit user interface
 	private void showDeposit()
