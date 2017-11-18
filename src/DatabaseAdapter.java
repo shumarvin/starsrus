@@ -22,6 +22,7 @@ public class DatabaseAdapter
     {
         Connection conn = null;
         Statement stmt = null;
+        prepstmt = null;
         rs = null;
     }
 
@@ -137,5 +138,31 @@ public class DatabaseAdapter
             close();
         }
         return new Account();
+    }
+
+    public boolean deposit(Account account, double depositAmount)
+    {
+        connect();
+        String sql = "";
+        String username = account.getUsername();
+        try
+        {
+            sql = "UPDATE MarketAccount M SET M.mbalance=? 
+            FROM OwnsMarket O,Customer C WHERE C.username=? AND O.m_aid = M.m_aid";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, depositAmount);
+            prepstmt.setString(2,username);
+
+            prepstmt.executeUpdate(sql);
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        finally
+        {
+            close();
+        }
     }
 }
