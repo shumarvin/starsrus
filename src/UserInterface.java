@@ -47,6 +47,7 @@ public class UserInterface
 			else
 			{
 				int choice = reader.nextInt();
+				reader.nextLine();
 				//handle invalid input
 				if(choice < 1 || choice > 4)
 				{
@@ -65,19 +66,18 @@ public class UserInterface
 							break;
 					default: quit();
 				}
-			}	
+			}
 		}
 	}
 	//customer login user interface
 	private void doCustomerLogin()
 	{
 		System.out.println("\n-------------------------");
-		System.out.println("       Customer Login       ");
+		System.out.println("     Customer Login      ");
 		System.out.println("-------------------------");
 
 		//read in customer username and password
 		System.out.print("Customer Username: ");
-		reader.nextLine();
 		String customerUsername = reader.nextLine();
 		char[] customerPassCharArr = console.readPassword("Customer Password: ");
 		String customerPassword = new String(customerPassCharArr);
@@ -111,15 +111,41 @@ public class UserInterface
 
 		//read in manager username and password
 		System.out.print("Manager Username: ");
-		reader.nextLine();
 		String managerUsername = reader.nextLine();
 		char[] managerPassCharArr = console.readPassword("Manager Password: ");
 		String managerPassword = new String(managerPassCharArr);
 		//System.out.println("User is: " + managerUsername + "  " + " Pass is: " + managerPassword);
+
+		//query database to see if valid account
+		account = dbAdapter.queryAccount(1, managerUsername, managerPassword);
+
+		//if invalid username/password, have user try again
+		while(account.getUsername() == "")
+		{
+			System.out.println("Invalid username or password. Please try again.");
+			System.out.println();
+
+			//read in manager username and password
+			System.out.println("Manager Username: ");
+			managerUsername = reader.nextLine();
+			managerPassCharArr = console.readPassword("Manager Password: ");
+			managerPassword = new String(managerPassCharArr);
+			account = dbAdapter.queryAccount(1, managerUsername, managerPassword);
+		}
+		// placeholder for showManagerInterface();
 	}
 	private void doCreateAccount()
 	{
-		System.out.println("create account");
+		System.out.println("\n-------------------------");
+		System.out.println("      Create Account     ");
+		System.out.println("-------------------------");
+
+		//Ask for what account user wants to create
+		System.out.println("Please choose account type:");
+		System.out.println("1. Create (Customer) Account");
+		System.out.println("2. Create (Manager)  Account");
+		int choice = reader.nextInt();
+		reader.nextLine();
 	}
 	//trader user interface
 	private void showTraderInterface()
@@ -129,9 +155,9 @@ public class UserInterface
 				account.getLastName() + "!");
 		System.out.println();
 
-		
+
 		/*
-			Make trader interface a loop so that they can continue to use 
+			Make trader interface a loop so that they can continue to use
 			the program after making their first action and so that we don't
 			have a gajillion method frames on the stack.
 		*/
@@ -201,7 +227,7 @@ public class UserInterface
 			System.out.print("Input: ");
 			//check for non-double input
 			if(!reader.hasNextDouble())
-			{   
+			{
 				System.out.println("Invalid input. Please try again.");
 				reader.nextLine();
 				continue;
@@ -223,7 +249,7 @@ public class UserInterface
 				}
 				else
 					continue;
-			}	
+			}
 		}
 	}
 	private void showWithdraw()

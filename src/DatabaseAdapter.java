@@ -6,7 +6,7 @@ public class DatabaseAdapter
     // JDBC driver name and database URL
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/marvinshuDB";
-    
+
     //  Database credentials
     private static final String USER = "marvinshu";
     private static final String PASS = "477";
@@ -91,8 +91,8 @@ public class DatabaseAdapter
         Queries the database for the account associated with the username
         @param accountType the type of account (Customer or Manager)
         @param username,password the username and password
-        @return Account object with all its fields initialized if found, 
-                default Account object if username/password incorrect 
+        @return Account object with all its fields initialized if found,
+                default Account object if username/password incorrect
     */
     public Account queryAccount(int accountType, String username, String password)
     {
@@ -117,13 +117,13 @@ public class DatabaseAdapter
 
             //process query
             /*
-                If rs has something, then that is a valid username-password. 
+                If rs has something, then that is a valid username-password.
                 If it doesn't, then it was invalid.
-            */ 
+            */
             if(rs.next())
             {
-                return new Account(username, password, rs.getString("firstName"), 
-                rs.getString("lastName"),rs.getString("state"), rs.getString("phone"), 
+                return new Account(username, password, rs.getString("firstName"),
+                rs.getString("lastName"),rs.getString("state"), rs.getString("phone"),
                 rs.getString("email"),rs.getInt("taxid"));
 
             }
@@ -137,5 +137,13 @@ public class DatabaseAdapter
             close();
         }
         return new Account();
+    }
+    /*
+        Create account.
+        @param accountType the type of account (Customer or Manager)
+    */
+    public int createAccount(int placeholder)
+    {
+        return 0;
     }
 }
