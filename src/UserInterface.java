@@ -258,20 +258,37 @@ public class UserInterface
 				if(confirm.equals("y"))
 				{
 					//update database
-					if(dbAdapter.updateMarketAccount(account, depositAmount,0))
+					if(updateType == 0)
 					{
-						if(updateType == 0)
+						if(dbAdapter.updateMarketAccount(account, depositAmount,0))
+						{
 							System.out.println("Deposit Successful!");
+							System.out.println();
+						}
 						else
-							System.out.println("Withdraw Successful!");
-						System.out.println();
-					}
+						{
+							System.out.println("Error occurred. Please see above for details.");
+							System.out.println();
+						}
+						break;
+					}	
+
 					else
 					{
-						System.out.println("Error occurred. Please see above for details.");
-						System.out.println();
+						if(dbAdapter.updateMarketAccount(account, depositAmount,1))
+						{
+							System.out.println("Withdraw Successful!");
+							System.out.println();
+						}
+						else
+						{
+							System.out.println("Error occurred. Please see above for details.");
+							System.out.println();
+						}
+						break;	
 					}
-					break;
+					
+					
 				}
 				else
 					continue;
