@@ -179,6 +179,7 @@ public class UserInterface
 			//check for non-int input
 			if(!reader.hasNextInt())
 			{
+				//System.out.println();
 				System.out.println("Error! Invalid Input!");
 				reader.nextLine();
 				continue;
@@ -235,7 +236,7 @@ public class UserInterface
 			}
 			else
 			{
-				double depositAmount = reader.nextDouble();
+				float depositAmount = reader.nextFloat();
 				reader.nextLine();
 				//confirm deposit
 				System.out.println("You are depositing $" + depositAmount + ". Is this the correct amount? (y/n)");
@@ -244,8 +245,16 @@ public class UserInterface
 				if(confirm.equals("y"))
 				{
 					//update database
-					//dbAdapter.deposit(account, depositAmount);
-					System.out.println("Deposit Successful!");
+					if(dbAdapter.deposit(account, depositAmount))
+					{
+						System.out.println("Deposit Successful!");
+						System.out.println();
+					}
+					else
+					{
+						System.out.println("Error occurred. Please see above for details.");
+						System.out.println();
+					}
 					break;
 				}
 				else

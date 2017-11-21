@@ -149,29 +149,36 @@ public class DatabaseAdapter
 
     }
 
-
-    public boolean deposit(Account account, double depositAmount)
+    /*
+        Updates the account's marketaccount with the specified amount
+        @param account the account to update
+        @param depositAmount the amount to deposit
+        @return true if successful, false otherwise
+    */
+    public boolean deposit(Account account, float depositAmount)
     {
         connect();
         String sql = "";
         String username = account.getUsername();
         try
         {
-            sql = "UPDATE MarketAccount M SET M.mbalance=? 
-            FROM OwnsMarket O,Customer C WHERE C.username=? AND O.m_aid = M.m_aid";
+            sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
 
             prepstmt = conn.prepareStatement(sql);
-            prepstmt.setString(1, depositAmount);
+            prepstmt.setFloat(1, depositAmount);
             prepstmt.setString(2,username);
 
-            prepstmt.executeUpdate(sql);
+            prepstmt.executeUpdate();
         }
         catch(SQLException se)
         {
             se.printStackTrace();
+            return false;
         }
         finally
         {
             close();
         }
+        return true;
+    }
 }
