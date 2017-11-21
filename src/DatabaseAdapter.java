@@ -155,16 +155,20 @@ public class DatabaseAdapter
         @param depositAmount the amount to deposit
         @return true if successful, false otherwise
     */
-    public boolean deposit(Account account, float depositAmount)
+    public boolean updateMarketAccount(Account account, float depositAmount, int updateType)
     {
         connect();
         String sql = "";
         String username = account.getUsername();
         try
         {
-            //sql query
-            sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-
+            //deposit
+            if(updateType == 0)
+                sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+            //withdraw
+            else
+                sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+            
             prepstmt = conn.prepareStatement(sql);
             prepstmt.setFloat(1, depositAmount);
             prepstmt.setString(2,username);

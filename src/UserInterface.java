@@ -245,7 +245,7 @@ public class UserInterface
 				if(confirm.equals("y"))
 				{
 					//update database
-					if(dbAdapter.deposit(account, depositAmount))
+					if(dbAdapter.updateMarketAccount(account, depositAmount,0))
 					{
 						System.out.println("Deposit Successful!");
 						System.out.println();
@@ -264,7 +264,46 @@ public class UserInterface
 	}
 	private void showWithdraw()
 	{
-		System.out.println("show withdraw");
+		System.out.println();
+		while(true)
+		{
+			System.out.println("How much would you like to withdraw?");
+			System.out.println();
+			System.out.print("Input: ");
+			//check for non-double input
+			if(!reader.hasNextDouble())
+			{
+				System.out.println("Invalid input. Please try again.");
+				reader.next();
+				continue;
+			}
+			else
+			{
+				float depositAmount = reader.nextFloat();
+				reader.nextLine();
+				//confirm deposit
+				System.out.println("You are withdrawing $" + depositAmount + ". Is this the correct amount? (y/n)");
+				System.out.print("Input: ");
+				String confirm = reader.next();
+				if(confirm.equals("y"))
+				{
+					//update database
+					if(dbAdapter.updateMarketAccount(account, depositAmount,1))
+					{
+						System.out.println("Withdraw Successful!");
+						System.out.println();
+					}
+					else
+					{
+						System.out.println("Error occurred. Please see above for details.");
+						System.out.println();
+					}
+					break;
+				}
+				else
+					continue;
+			}
+		}
 	}
 	private void showBuy()
 	{
