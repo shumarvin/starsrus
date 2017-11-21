@@ -197,9 +197,9 @@ public class UserInterface
 				//switch on choice
 				switch(choice)
 				{
-					case 1: showDeposit();
+					case 1: showDepositOrWithdraw(0);
 							break;
-					case 2: showWithdraw();
+					case 2: showDepositOrWithdraw(1);
 							break;
 					case 3: showBuy();
 							break;
@@ -218,13 +218,17 @@ public class UserInterface
 			}
 		}
 	}
-	//deposit user interface
-	private void showDeposit()
+	//user interface for deposit and withdraw
+	//@param updatetype 0 for deposit, 1 for withdraw
+	private void showDepositOrWithdraw(int updateType)
 	{
 		System.out.println();
 		while(true)
 		{
-			System.out.println("How much would you like to deposit?");
+			if(updateType == 0)
+				System.out.println("How much would you like to deposit?");
+			else
+				System.out.println("How much would you like to withdraw?");
 			System.out.println();
 			System.out.print("Input: ");
 			//check for non-double input
@@ -238,8 +242,17 @@ public class UserInterface
 			{
 				float depositAmount = reader.nextFloat();
 				reader.nextLine();
-				//confirm deposit
-				System.out.println("You are depositing $" + depositAmount + ". Is this the correct amount? (y/n)");
+				if(depositAmount < 0)
+				{
+					System.out.println("Negative amounts are invalid. Try again");
+					System.out.println();
+					continue;
+				}
+				//confirm deposit or withdraw
+				if(updateType == 0)
+					System.out.println("You are depositing $" + depositAmount + ". Is this the correct amount? (y/n)");
+				else
+					System.out.println("You are withdrawing $" + depositAmount + ". Is this the correct amount? (y/n)");
 				System.out.print("Input: ");
 				String confirm = reader.next();
 				if(confirm.equals("y"))
@@ -247,7 +260,10 @@ public class UserInterface
 					//update database
 					if(dbAdapter.updateMarketAccount(account, depositAmount,0))
 					{
-						System.out.println("Deposit Successful!");
+						if(updateType == 0)
+							System.out.println("Deposit Successful!");
+						else
+							System.out.println("Withdraw Successful!");
 						System.out.println();
 					}
 					else
@@ -262,49 +278,7 @@ public class UserInterface
 			}
 		}
 	}
-	private void showWithdraw()
-	{
-		System.out.println();
-		while(true)
-		{
-			System.out.println("How much would you like to withdraw?");
-			System.out.println();
-			System.out.print("Input: ");
-			//check for non-double input
-			if(!reader.hasNextDouble())
-			{
-				System.out.println("Invalid input. Please try again.");
-				reader.next();
-				continue;
-			}
-			else
-			{
-				float depositAmount = reader.nextFloat();
-				reader.nextLine();
-				//confirm deposit
-				System.out.println("You are withdrawing $" + depositAmount + ". Is this the correct amount? (y/n)");
-				System.out.print("Input: ");
-				String confirm = reader.next();
-				if(confirm.equals("y"))
-				{
-					//update database
-					if(dbAdapter.updateMarketAccount(account, depositAmount,1))
-					{
-						System.out.println("Withdraw Successful!");
-						System.out.println();
-					}
-					else
-					{
-						System.out.println("Error occurred. Please see above for details.");
-						System.out.println();
-					}
-					break;
-				}
-				else
-					continue;
-			}
-		}
-	}
+	
 	private void showBuy()
 	{
 		System.out.println("show buy");

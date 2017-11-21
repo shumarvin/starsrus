@@ -153,6 +153,7 @@ public class DatabaseAdapter
         Updates the account's marketaccount with the specified amount
         @param account the account to update
         @param depositAmount the amount to deposit
+        @param updateType whether we want to deposit or withdraw
         @return true if successful, false otherwise
     */
     public boolean updateMarketAccount(Account account, float depositAmount, int updateType)
