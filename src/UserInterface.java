@@ -169,7 +169,7 @@ public class UserInterface
 			System.out.println("2. Withdraw from Market Account");
 			System.out.println("3. Buy Stocks");
 			System.out.println("4. Sell Stocks");
-			System.out.println("5. Show Market Account balance");
+			System.out.println("5. Show Market Account Balance");
 			System.out.println("6. Show Stock Transaction History");
 			System.out.println("7. List Current Stock Price");
 			System.out.println("8. List Movie Information");
@@ -276,7 +276,17 @@ public class UserInterface
 	}
 	private void showMarketBalance()
 	{
-		System.out.println("show market balance");
+		float balance = dbAdapter.getMarketAccountBalance(account);
+		if(balance != -1)
+		{
+			System.out.println("Your balance is: " + balance);
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();
+		}
 	}
 	private void showStockTransactions()
 	{

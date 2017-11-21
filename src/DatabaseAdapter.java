@@ -162,6 +162,7 @@ public class DatabaseAdapter
         String username = account.getUsername();
         try
         {
+            //sql query
             sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
 
             prepstmt = conn.prepareStatement(sql);
@@ -180,5 +181,46 @@ public class DatabaseAdapter
             close();
         }
         return true;
+    }
+    /*
+        Queries the database and retrives the market account balance for a 
+        given account
+        @param account the account to get the market balance of
+        @return the market balance if found, -1 if error occurs
+    */
+    public float getMarketAccountBalance(Account account)
+    {
+        connect();
+        String sql = "";
+        String username = account.getUsername();
+        float balance = 0;
+        try
+        {
+            sql = "SELECT M.mbalance FROM MarketAccount M, OwnsMarket O, Customer C WHERE C.username=? AND O.m_aid = M.m_aid;";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+
+
+            rs = prepstmt.executeQuery();
+            //if rs is not null, then query was successful
+            if(rs.next())
+            {
+                balance = rs.getFloat("mbalance");
+            }
+            else
+                return -1;
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return -1;
+        }
+        finally
+        {
+            close();
+        }
+        return balance;
     }
 }
