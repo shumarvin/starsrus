@@ -179,7 +179,7 @@ public class UserInterface
 			//check for non-int input
 			if(!reader.hasNextInt())
 			{
-				//System.out.println();
+				System.out.println();
 				System.out.println("Error! Invalid Input!");
 				reader.nextLine();
 				continue;
