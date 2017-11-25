@@ -215,7 +215,6 @@ public class DatabaseAdapter
             }
             else
                 return -1;
-
         }
         catch(SQLException se)
         {

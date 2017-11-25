@@ -3,18 +3,20 @@ import java.util.InputMismatchException;
 import java.io.Console;
 
 public class UserInterface
-{
+{ 
 	private Scanner reader;                   //read in user input
 	private Account account;                  //user's account
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 	private Console console;                  //console to read in password
-
+	private XMLParser xmlParser;              //xml parser for movie.xml
 	//constructor
 	public UserInterface()
 	{
 		reader = new Scanner(System.in);
 		dbAdapter = new DatabaseAdapter();
 		console = System.console();
+		xmlParser = new XMLParser("../Movies.xml");
+		xmlParser.printDocumentRoot();
 	}
 
 	//starts program with title and login screen
@@ -240,8 +242,11 @@ public class UserInterface
 			}
 			else
 			{
+				//read in amount to deposit or withdraw
 				float depositAmount = reader.nextFloat();
 				reader.nextLine();
+
+				//check for negative input
 				if(depositAmount < 0)
 				{
 					System.out.println("Negative amounts are invalid. Try again");
@@ -258,6 +263,8 @@ public class UserInterface
 				if(confirm.equals("y"))
 				{
 					//update database
+
+					//deposit
 					if(updateType == 0)
 					{
 						if(dbAdapter.updateMarketAccount(account, depositAmount,0))
@@ -272,7 +279,7 @@ public class UserInterface
 						}
 						break;
 					}	
-
+					//withdraw
 					else
 					{
 						if(dbAdapter.updateMarketAccount(account, depositAmount,1))
@@ -286,9 +293,7 @@ public class UserInterface
 							System.out.println();
 						}
 						break;	
-					}
-					
-					
+					}	
 				}
 				else
 					continue;
@@ -324,7 +329,7 @@ public class UserInterface
 	}
 	private void showCurrentStockPrice()
 	{
-		System.out.println("show current stock price");
+		System.out.println("");
 	}
 	private void showMovieInfo()
 	{
