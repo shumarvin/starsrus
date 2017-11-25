@@ -331,9 +331,66 @@ public class UserInterface
 	{
 		System.out.println("");
 	}
+	//movie info user interface
 	private void showMovieInfo()
 	{
-		System.out.println("show movie info");
+		while(true)
+		{
+			System.out.println("Which info would you like to see?");
+			System.out.println();
+
+			System.out.println("1. Detailed Movie Info");
+			System.out.println("2. Top Movies");
+			System.out.println("3. Movie Reviews");
+			System.out.println("4. Go Back");
+
+			System.out.print("Input: ");
+			//check for non-int input
+			if(!reader.hasNextInt())
+			{
+				System.out.println();
+				System.out.println("Error! Invalid Input!");
+				reader.nextLine();
+				continue;
+			}
+			else
+			{
+				int choice = reader.nextInt();
+				reader.nextLine();
+				//handle invalid input
+				if(choice < 1 || choice > 4)
+				{
+					System.out.println("Invalid input. Please choose one of the 9 options below.");
+					continue;
+				}
+
+				switch(choice)
+				{
+					case 1: showDetailedMovieInfo();
+							break;
+					case 2: showTopMovies();
+							break;
+					case 3: showMovieReviews();
+							break;
+					default: break;
+				}
+				//go back to trader interface
+				break;
+			}
+		}
+		
+	}
+	private void showDetailedMovieInfo()
+	{
+		System.out.println("show detailed Movie Info");
+	}
+	private void showTopMovies()
+	{
+		System.out.println("show top movies");
+	}
+	private void showMovieReviews()
+	{
+		System.out.println("show movie reviews");
 	}
 	private void quit()
 	{
