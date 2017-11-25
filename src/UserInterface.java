@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.io.Console;
+import java.util.ArrayList;
 
 public class UserInterface
 { 
@@ -9,6 +10,7 @@ public class UserInterface
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 	private Console console;                  //console to read in password
 	private XMLParser xmlParser;              //xml parser for movie.xml
+	
 	//constructor
 	public UserInterface()
 	{
@@ -16,7 +18,6 @@ public class UserInterface
 		dbAdapter = new DatabaseAdapter();
 		console = System.console();
 		xmlParser = new XMLParser("../Movies.xml");
-		xmlParser.printDocumentRoot();
 	}
 
 	//starts program with title and login screen
@@ -380,9 +381,40 @@ public class UserInterface
 		}
 		
 	}
+	//detailed movie info user interface
 	private void showDetailedMovieInfo()
 	{
-		System.out.println("show detailed Movie Info");
+		while(true)
+		{
+			//print out all movies so user can choose which one
+			//to get info on
+			System.out.println("Which movie would you like info on?");
+			System.out.println();
+
+			//get and print all movies
+			ArrayList<String> movies = xmlParser.getMovieNames();
+			for(String s:movies)
+			{
+				System.out.println(s);
+			}
+			System.out.println();
+			//get user input
+			System.out.print("Input: ");
+			String choice = reader.nextLine();
+			System.out.println();
+			//if invalid, prompt user to try again
+			if(!xmlParser.printMovie(choice))
+			{
+				System.out.println("Invalid Movie. Please try again.");
+				continue;
+			}
+			//print out movie info and go back to trader interface
+			else
+			{
+				System.out.println();
+				break;
+			}
+		}
 	}
 	private void showTopMovies()
 	{
