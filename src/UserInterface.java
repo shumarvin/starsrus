@@ -418,7 +418,15 @@ public class UserInterface
 	}
 	private void showTopMovies()
 	{
-		System.out.println("show top movies");
+		//have user specify time interval
+		System.out.println("Please enter the time interval to search for");
+		System.out.print("Start Year: ");
+		String start = reader.nextLine();
+		System.out.println();
+		System.out.print("End Year:")
+		String end = reader.nextLine();
+		System.out.println(); 
+		
 	}
 	private void showMovieReviews()
 	{
