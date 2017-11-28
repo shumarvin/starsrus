@@ -98,11 +98,11 @@ public class XMLParser
 		//print title
 		System.out.println("Title: " + element.getElementsByTagName("TITLE").item(0)
 						.getTextContent());
-		
+
 		//print production year
 		System.out.println("Production Year : " + element.getElementsByTagName("PRODUCTIONYEAR").item(0)
 						.getTextContent());
-		
+
 		//print reviews
 		NodeList reviews = element.getElementsByTagName("REVIEWS");
 		for(int i = 0; i < reviews.getLength(); i++)
@@ -114,7 +114,7 @@ public class XMLParser
 				System.out.println("Review: " + e.getTextContent() + " by: " + e.getAttribute("AUTHOR"));
 			}
 		}
-		
+
 		//print organization rankings
 		NodeList rankings = element.getElementsByTagName("RANKING");
 		for(int i = 0; i < rankings.getLength(); i++)
@@ -129,10 +129,10 @@ public class XMLParser
 	}
 	public void getTopMovies(String startYear, String endYear)
 	{
-		
+
 	}
 	private NodeList getTopMoviesInRange(String startYear, String endYear)
 	{
-		
+		return null; 
 	}
 }
