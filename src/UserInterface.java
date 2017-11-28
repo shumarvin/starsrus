@@ -423,7 +423,7 @@ public class UserInterface
 		System.out.print("Start Year: ");
 		String start = reader.nextLine();
 		System.out.println();
-		System.out.print("End Year:")
+		System.out.print("End Year:");
 		String end = reader.nextLine();
 		System.out.println(); 
 		
