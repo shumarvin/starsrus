@@ -4,13 +4,13 @@ import java.io.Console;
 import java.util.ArrayList;
 
 public class UserInterface
-{ 
+{
 	private Scanner reader;                   //read in user input
 	private Account account;                  //user's account
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 	private Console console;                  //console to read in password
 	private XMLParser xmlParser;              //xml parser for movie.xml
-	
+
 	//constructor
 	public UserInterface()
 	{
@@ -149,6 +149,11 @@ public class UserInterface
 		System.out.println("2. Create (Manager)  Account");
 		int choice = reader.nextInt();
 		reader.nextLine();
+		if (choice == 1) {
+			System.out.println("Creating customer acc");
+		} else {
+			System.out.println("Creating manager acc");
+		}
 	}
 	//trader user interface
 	private void showTraderInterface()
@@ -279,7 +284,7 @@ public class UserInterface
 							System.out.println();
 						}
 						break;
-					}	
+					}
 					//withdraw
 					else
 					{
@@ -293,15 +298,15 @@ public class UserInterface
 							System.out.println("Error occurred. Please see above for details.");
 							System.out.println();
 						}
-						break;	
-					}	
+						break;
+					}
 				}
 				else
 					continue;
 			}
 		}
 	}
-	
+
 	private void showBuy()
 	{
 		System.out.println("show buy");
@@ -379,7 +384,7 @@ public class UserInterface
 				break;
 			}
 		}
-		
+
 	}
 	//detailed movie info user interface
 	private void showDetailedMovieInfo()
@@ -425,8 +430,8 @@ public class UserInterface
 		System.out.println();
 		System.out.print("End Year:");
 		String end = reader.nextLine();
-		System.out.println(); 
-		
+		System.out.println();
+
 	}
 	private void showMovieReviews()
 	{

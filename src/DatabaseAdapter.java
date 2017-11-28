@@ -141,12 +141,16 @@ public class DatabaseAdapter
     }
     /*
         Create account.
-        @param accountType the type of account (Customer or Manager)
+        @param accountType the type of account (0 -> Customer or 1 -> Manager)
     */
-    public int createAccount(int placeholder)
+    public int createAccount(int accountType)
     {
-        return 0;
+        if (accountType == 0) { // Create customer account
 
+        } else {
+
+        }
+        return 0; 
     }
     /*
         Updates the account's marketaccount with the specified amount
@@ -176,7 +180,7 @@ public class DatabaseAdapter
             //withdraw
             else
                 sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-            
+
             prepstmt = conn.prepareStatement(sql);
             prepstmt.setFloat(1, depositAmount);
             prepstmt.setString(2,username);
@@ -194,7 +198,7 @@ public class DatabaseAdapter
         }
         return true;
     }
-    /*
+  
     public void addMarketTransaction(Account account, float depositAmount, int updateType)
     {
         connect();
@@ -213,7 +217,7 @@ public class DatabaseAdapter
             close();
         }
     }
-    */
+    
     /*
         Queries the database and retrives the market account balance for a 
         given account
