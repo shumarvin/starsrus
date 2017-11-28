@@ -152,7 +152,6 @@ public class DatabaseAdapter
         }
         return 0; 
     }
-
     /*
         Updates the account's marketaccount with the specified amount
         @param account the account to update
@@ -165,6 +164,14 @@ public class DatabaseAdapter
         connect();
         String sql = "";
         String username = account.getUsername();
+        float currentBalance = getMarketAccountBalance(account);
+
+        //check to make sure account balance doesn't go below 0 for withdraws
+        if(updateType != 0 && currentBalance - depositAmount < 0)
+        {
+            System.out.println("Error! Not enough money to withdraw!");
+            return false;
+        }
         try
         {
             //deposit
@@ -191,8 +198,28 @@ public class DatabaseAdapter
         }
         return true;
     }
+  
+    public void addMarketTransaction(Account account, float depositAmount, int updateType)
+    {
+        connect();
+        String sql = "";
+        String username = account.getUsername();
+        try
+        {
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        finally
+        {
+            close();
+        }
+    }
+    
     /*
-        Queries the database and retrives the market account balance for a
+        Queries the database and retrives the market account balance for a 
         given account
         @param account the account to get the market balance of
         @return the market balance if found, -1 if error occurs
