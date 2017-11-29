@@ -146,14 +146,37 @@ public class DatabaseAdapter
         Create account.
         @param accountType the type of account (0 -> Customer or 1 -> Manager)
     */
-    public int createAccount(int accountType)
+    public int createAccount(int accountType, String username, String password,
+    String firstName, String lastName, String state, String phone, String email, int taxid)
     {
+        String updateSql = "";
+        int returnVal = 0;
         if (accountType == 0) { // Create customer account
 
         } else {
-
+            //Everything other than username and password is null, taxid = -1
+            System.out.println("Create account in DatabaseAdapter");
+            updateSql = "INSERT INTO Manager (username, password)"
+              + "VALUES (?,?);";
         }
-        return 0;
+
+        try {
+            connect();
+            prepstmt = conn.prepareStatement(updateSql);
+            if (accountType == 0) {
+              // placeholder for create customer account prepstmts
+            } else {
+              prepstmt.setString(1, username);
+              prepstmt.setString(2, password);
+            }
+            prepstmt.executeUpdate();
+        } catch(SQLException se) {
+            se.printStackTrace();
+            returnVal = -1;
+        } finally {
+            close();
+        }
+        return returnVal;
     }
     /*
         Updates the account's marketaccount with the specified amount and

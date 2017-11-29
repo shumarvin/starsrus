@@ -130,7 +130,7 @@ public class UserInterface
 			System.out.println();
 
 			//read in manager username and password
-			System.out.println("Manager Username: ");
+			System.out.print("Manager Username: ");
 			managerUsername = reader.nextLine();
 			managerPassCharArr = console.readPassword("Manager Password: ");
 			managerPassword = new String(managerPassCharArr);
@@ -148,12 +148,28 @@ public class UserInterface
 		System.out.println("Please choose account type:");
 		System.out.println("1. Create (Customer) Account");
 		System.out.println("2. Create (Manager)  Account");
+		System.out.println();
+		System.out.print("Input: ");
 		int choice = reader.nextInt();
 		reader.nextLine();
 		if (choice == 1) {
-			System.out.println("Creating customer acc");
+			System.out.println("--Creating Customer Account--");
+
 		} else {
-			System.out.println("Creating manager acc");
+			System.out.println("");
+			System.out.println("--Creating Manager Account--");
+			System.out.print("Enter a username: ");
+			String username = reader.nextLine();
+			System.out.print("Enter a password: ");
+			String password = reader.nextLine();
+			int temp = dbAdapter.createAccount(1, username, password, null, null, null, null, null, -1);
+			if (temp == 0) {
+				System.out.println("");
+				System.out.println("Manager account has been created for username " + username);
+			} else {
+				System.out.println("");
+				System.out.println("Manager account creation has failed for username " + username); 
+			}
 		}
 	}
 	//manager user interface
