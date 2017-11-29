@@ -27,6 +27,7 @@ public class UserInterface
 		System.out.println("*************************");
 		System.out.println("Welcome to Stars'R'Us!");
 		System.out.println("*************************");
+		System.out.println("Current date: " + dbAdapter.getCurrentDate());
 
 
 		//start login process here
@@ -275,6 +276,7 @@ public class UserInterface
 					{
 						if(dbAdapter.updateMarketAccount(account, depositAmount,0))
 						{
+							//dbAdapter.addMarketTransaction(account, depositAmount, 0);
 							System.out.println("Deposit Successful!");
 							System.out.println();
 						}
