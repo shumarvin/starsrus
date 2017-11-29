@@ -253,67 +253,6 @@ public class DatabaseAdapter
         }
         return true;
     }
-    /*
-        On each successful Market Account transaction, records it in the database
-        @param account the account that made the transaction
-        @param updateAmount the amount deposited or withdrawn 
-        @param updateType whether the transaction was a deposit or withdraw
-    */
-    public void addMarketTransaction(Account account, float updateAmount, int updateType)
-    {
-        String sql = "";
-        String username = account.getUsername();
-        Date date = getCurrentDate();
-        try
-        {
-            connect();
-
-            //if deposit, use marketIn attribute of Transactions
-            //use transaction to update both Transactions and MarketTransactions
-            if(updateType == 0)
-                sql = "START TRANSACTION "  
-                        + "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
-                         
-                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                        + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                        + "VALUES (?,?,M.m_aid);"
-                        + "INSERT INTO MarketTransactions "
-                        
-                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                        + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                        + "VALUES (M.m_aid, LAST_INSERT_ID()); "
-                    + "COMMIT;";
-            //same thing as above, but for withdraws (marketOut instead of marketIn)
-            else
-                sql  = "BEGIN;"  
-                        + "INSERT INTO Transactions(transDate, marketOut, m_aid)"   
-                        + "VALUES (?,?,M.m_aid)" 
-                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                        + "WHERE C.username=? AND O.m_aid = M.m_aid;"
-                        + "INSERT INTO MarketTransactions"
-                        + "VALUES (M.m_aid, LAST_INSERT_ID())"
-                        + "FROM MarketAccount M, Customer C, OwnsMarket O"
-                        + "WHERE C.username=? AND O.m_aid = M.m_aid;"
-                    + "COMMIT;";
-
-            prepstmt = conn.prepareStatement(sql);
-            prepstmt.setDate(1, date);
-            prepstmt.setFloat(2, updateAmount);
-            prepstmt.setString(3, username);
-            prepstmt.setString(4, username);
-
-            prepstmt.executeQuery();
-
-        }
-        catch(SQLException se)
-        {
-            se.printStackTrace();
-        }
-        finally
-        {
-            close();
-        }
-    }
     
     /*
         Queries the database and retrives the market account balance for a 
