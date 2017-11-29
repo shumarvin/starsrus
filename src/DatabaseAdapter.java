@@ -123,10 +123,13 @@ public class DatabaseAdapter
             */
             if(rs.next())
             {
-                return new Account(username, password, rs.getString("firstName"),
-                rs.getString("lastName"),rs.getString("state"), rs.getString("phone"),
-                rs.getString("email"),rs.getInt("taxid"));
-
+                if (accountType == 0) {
+                  return new Account(username, password, rs.getString("firstName"),
+                  rs.getString("lastName"),rs.getString("state"), rs.getString("phone"),
+                  rs.getString("email"),rs.getInt("taxid"));
+                }else{
+                  return new Account(username, password, null, null, null, null, null, -1);
+                }
             }
         }
         catch(SQLException se)
@@ -150,7 +153,7 @@ public class DatabaseAdapter
         } else {
 
         }
-        return 0; 
+        return 0;
     }
     /*
         Updates the account's marketaccount with the specified amount and
@@ -191,11 +194,11 @@ public class DatabaseAdapter
             {
                 updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
                             + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "   
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "
                             + "VALUES (?,?); ";
-                        
+
                 insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
-                                            + "SELECT M.m_aid, LAST_INSERT_ID() " 
+                                            + "SELECT M.m_aid, LAST_INSERT_ID() "
                                             + "FROM MarketAccount M, OwnsMarket O, Customer C "
                                             + "WHERE C.username=? AND O.m_aid = M.m_aid;";
             }
@@ -204,11 +207,11 @@ public class DatabaseAdapter
             {
                 updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
                             + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "
                             + "VALUES (?,?); ";
-                        
+
                 insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
-                                            + "SELECT M.m_aid, LAST_INSERT_ID() " 
+                                            + "SELECT M.m_aid, LAST_INSERT_ID() "
                                             + "FROM MarketAccount M, OwnsMarket O, Customer C "
                                             + "WHERE C.username=? AND O.m_aid = M.m_aid;";
             }
@@ -235,16 +238,16 @@ public class DatabaseAdapter
             }
             catch(SQLException se)
             {
-                se.printStackTrace();  
+                se.printStackTrace();
                 conn.rollback();
                 return false;
             }
-           
+
 
         }
         catch(SQLException se)
         {
-            se.printStackTrace();     
+            se.printStackTrace();
             return false;
         }
         finally
@@ -253,9 +256,9 @@ public class DatabaseAdapter
         }
         return true;
     }
-    
+
     /*
-        Queries the database and retrives the market account balance for a 
+        Queries the database and retrives the market account balance for a
         given account
         @param account the account to get the market balance of
         @return the market balance if found, -1 if error occurs
