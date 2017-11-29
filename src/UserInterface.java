@@ -139,7 +139,7 @@ public class UserInterface
 			managerPassword = new String(managerPassCharArr);
 			account = dbAdapter.queryAccount(1, managerUsername, managerPassword);
 		}
-		// placeholder for showManagerInterface();
+		showManagerInterface();
 	}
 	private void doCreateAccount()
 	{
@@ -216,27 +216,27 @@ public class UserInterface
 	}
 	private void showAddInterest()
 	{
-
+		System.out.println("Adding interest");
 	}
 	private void showMonthlyStatement()
 	{
-
+		System.out.println("Monthly Statement");
 	}
 	private void showListActiveCustomers()
 	{
-
+		System.out.println("List Active Customers");
 	}
 	private void showGovTaxReport()
 	{
-
+		System.out.println("Generate Government Tax Report");
 	}
 	private void showCustomerReport()
 	{
-
+		System.out.println("Generate Customer Report");
 	}
 	private void showDeleteTransactions()
 	{
-		
+		System.out.println("Delete Transactions for new month");
 	}
 
 	//trader user interface
