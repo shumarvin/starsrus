@@ -1,7 +1,8 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.io.Console;
-import java.util.ArrayList;
+import java.util.*;
+import java.text.NumberFormat;
 
 public class UserInterface
 {
@@ -10,6 +11,7 @@ public class UserInterface
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 	private Console console;                  //console to read in password
 	private XMLParser xmlParser;              //xml parser for movie.xml
+	private NumberFormat formatter;           //formatter for currency
 
 	//constructor
 	public UserInterface()
@@ -17,6 +19,7 @@ public class UserInterface
 		reader = new Scanner(System.in);
 		dbAdapter = new DatabaseAdapter();
 		console = System.console();
+		formatter = NumberFormat.getCurrencyInstance();
 		xmlParser = new XMLParser("../Movies.xml");
 	}
 
@@ -342,9 +345,11 @@ public class UserInterface
 				}
 				//confirm deposit or withdraw
 				if(updateType == 0)
-					System.out.println("You are depositing $" + depositAmount + ". Is this the correct amount? (y/n)");
+					System.out.println("You are depositing " + formatter.format(depositAmount) + 
+									". Is this the correct amount? (y/n)");
 				else
-					System.out.println("You are withdrawing $" + depositAmount + ". Is this the correct amount? (y/n)");
+					System.out.println("You are withdrawing " + formatter.format(depositAmount)
+								 + ". Is this the correct amount? (y/n)");
 				System.out.print("Input: ");
 				String confirm = reader.next();
 				if(confirm.equals("y"))
@@ -391,7 +396,16 @@ public class UserInterface
 
 	private void showBuy()
 	{
-		System.out.println("show buy");
+		System.out.println("Which stocks would you like to buy?");
+		System.out.println();
+		System.out.println("Stock Symbol    Price");
+		HashMap<String,Float> stocks = dbAdapter.getStocks();
+		Set<String> stockSymbols = stocks.keySet();
+        for(String symbol: stockSymbols)
+        {
+            System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
+        }
+		
 	}
 	private void showSell()
 	{

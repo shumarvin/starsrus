@@ -1,5 +1,6 @@
 //class that interfaces with the database
 import java.sql.*;
+import java.util.HashMap;
 
 public class DatabaseAdapter
 {
@@ -203,7 +204,7 @@ public class DatabaseAdapter
             else
             {
                 updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
-                            + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                            + "SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
                 insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
                             + "VALUES (?,?); ";
                         
@@ -301,11 +302,12 @@ public class DatabaseAdapter
     */
     public Date getCurrentDate()
     {
-        connect();
         String sql = "";
         java.sql.Date date = null;
         try
         {
+            connect();
+
             //sql query for date
             sql = "SELECT * FROM Date";
             stmt = conn.createStatement();
@@ -326,5 +328,44 @@ public class DatabaseAdapter
             close();
         }
         return date;
+    }
+    /*
+        Gets all the stocks and their prices
+        @return stocks a Hashmap of all the 
+        stock symbols mapped to their
+        current prices
+    */
+    public HashMap<String,Float> getStocks()
+    {
+        String sql = "";
+        HashMap<String,Float> stocks = new HashMap<String,Float>();
+
+        try
+        {
+            connect();
+
+            //sql query
+            sql = "SELECT stocksymbol, currentprice "
+                + "FROM Stock;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            //get results and store in stockSymbols
+            while(rs.next())
+            {
+                stocks.put(rs.getString("stocksymbol"), rs.getFloat("currentprice"));
+            }
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return stocks;
     }
 }
