@@ -153,16 +153,18 @@ public class DatabaseAdapter
         return 0; 
     }
     /*
-        Updates the account's marketaccount with the specified amount
+        Updates the account's marketaccount with the specified amount and
+        records the transaction
         @param account the account to update
         @param depositAmount the amount to deposit
-        @param updateType whether we want to deposit or withdraw
+        @param updateType whether we want to deposit(0) or withdraw(1)
         @return true if successful, false otherwise
     */
     public boolean updateMarketAccount(Account account, float updateAmount, int updateType)
     {
         String updateSql = "";
-        String insertSql = "";
+        String insertSqlTransaction = "";
+        String insertSQLMarketTransaction = "";
         String username = account.getUsername();
         float currentBalance = getMarketAccountBalance(account);
         Date date = getCurrentDate();
@@ -187,37 +189,28 @@ public class DatabaseAdapter
             //deposit
             if(updateType == 0)
             {
-                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C"
-                            + " SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-                insertSql = "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
-                             
-                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                            + "VALUES (?,?,M.m_aid);"
-                            + "INSERT INTO MarketTransactions "
-                            
-                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                            + "VALUES (M.m_aid, LAST_INSERT_ID()); ";
-                           //+ "COMMIT;";
+                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
+                            + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "   
+                            + "VALUES (?,?); ";
+                        
+                insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
+                                            + "SELECT M.m_aid, LAST_INSERT_ID() " 
+                                            + "FROM MarketAccount M, OwnsMarket O, Customer C "
+                                            + "WHERE C.username=? AND O.m_aid = M.m_aid;";
             }
             //withdraw
             else
             {
-                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C"
-                            + " SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
-                insertSql = "START TRANSACTION; "  
-                            + "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
-                             
-                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                            + "VALUES (?,?,M.m_aid);"
-                            + "INSERT INTO MarketTransactions "
-                            
-                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
-                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
-                            + "VALUES (M.m_aid, LAST_INSERT_ID()); ";
-                           //+ "COMMIT;";
+                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
+                            + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
+                            + "VALUES (?,?); ";
+                        
+                insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
+                                            + "SELECT M.m_aid, LAST_INSERT_ID() " 
+                                            + "FROM MarketAccount M, OwnsMarket O, Customer C "
+                                            + "WHERE C.username=? AND O.m_aid = M.m_aid;";
             }
             try
             {
@@ -228,12 +221,14 @@ public class DatabaseAdapter
                 prepstmt.executeUpdate();
 
                 //then record the transaction
-                prepstmt = conn.prepareStatement(insertSql);
+                prepstmt = conn.prepareStatement(insertSqlTransaction);
                 prepstmt.setDate(1, date);
                 prepstmt.setFloat(2, updateAmount);
-                prepstmt.setString(3, username);
-                prepstmt.setString(4, username);
-                prepstmt.executeQuery();
+                prepstmt.executeUpdate();
+
+                prepstmt = conn.prepareStatement(insertSQLMarketTransaction);
+                prepstmt.setString(1,username);
+                prepstmt.executeUpdate();
 
                 conn.commit();
                 conn.setAutoCommit(true);
@@ -258,7 +253,6 @@ public class DatabaseAdapter
         }
         return true;
     }
-  
     /*
         On each successful Market Account transaction, records it in the database
         @param account the account that made the transaction
