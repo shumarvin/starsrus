@@ -393,9 +393,10 @@ public class UserInterface
 			}
 		}
 	}
-
+	//buy stocks user interface
 	private void showBuy()
 	{
+		//show all stocks and their prices
 		System.out.println("Which stocks would you like to buy?");
 		System.out.println();
 		System.out.println("Stock Symbol    Price");
@@ -416,7 +417,7 @@ public class UserInterface
 		float balance = dbAdapter.getMarketAccountBalance(account);
 		if(balance != -1)
 		{
-			System.out.println("Your balance is: " + balance);
+			System.out.println("Your balance is: " + formatter.format(balance));
 			System.out.println();
 		}
 		else
