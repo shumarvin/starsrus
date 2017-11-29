@@ -159,37 +159,97 @@ public class DatabaseAdapter
         @param updateType whether we want to deposit or withdraw
         @return true if successful, false otherwise
     */
-    public boolean updateMarketAccount(Account account, float depositAmount, int updateType)
+    public boolean updateMarketAccount(Account account, float updateAmount, int updateType)
     {
-        connect();
-        String sql = "";
+        String updateSql = "";
+        String insertSql = "";
         String username = account.getUsername();
         float currentBalance = getMarketAccountBalance(account);
+        Date date = getCurrentDate();
 
         //check to make sure account balance doesn't go below 0 for withdraws
-        if(updateType != 0 && currentBalance - depositAmount < 0)
+        if(updateType != 0 && currentBalance - updateAmount < 0)
         {
             System.out.println("Error! Not enough money to withdraw!");
             return false;
         }
+
         try
         {
+            connect();
+
+            /*
+                Use SQL transaction to add/subtract money from Market Account
+                and record transaction
+            */
+            conn.setAutoCommit(false);
+
             //deposit
             if(updateType == 0)
-                sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+            {
+                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C"
+                            + " SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                insertSql = "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
+                             
+                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                            + "VALUES (?,?,M.m_aid);"
+                            + "INSERT INTO MarketTransactions "
+                            
+                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                            + "VALUES (M.m_aid, LAST_INSERT_ID()); ";
+                           //+ "COMMIT;";
+            }
             //withdraw
             else
-                sql = "UPDATE MarketAccount M, OwnsMarket O, Customer C SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+            {
+                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C"
+                            + " SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                insertSql = "START TRANSACTION; "  
+                            + "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
+                             
+                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                            + "VALUES (?,?,M.m_aid);"
+                            + "INSERT INTO MarketTransactions "
+                            
+                            + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                            + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                            + "VALUES (M.m_aid, LAST_INSERT_ID()); ";
+                           //+ "COMMIT;";
+            }
+            try
+            {
+                //first update market account balance
+                prepstmt = conn.prepareStatement(updateSql);
+                prepstmt.setFloat(1, updateAmount);
+                prepstmt.setString(2,username);
+                prepstmt.executeUpdate();
 
-            prepstmt = conn.prepareStatement(sql);
-            prepstmt.setFloat(1, depositAmount);
-            prepstmt.setString(2,username);
+                //then record the transaction
+                prepstmt = conn.prepareStatement(insertSql);
+                prepstmt.setDate(1, date);
+                prepstmt.setFloat(2, updateAmount);
+                prepstmt.setString(3, username);
+                prepstmt.setString(4, username);
+                prepstmt.executeQuery();
 
-            prepstmt.executeUpdate();
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();  
+                conn.rollback();
+                return false;
+            }
+           
+
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            se.printStackTrace();     
             return false;
         }
         finally
@@ -199,13 +259,56 @@ public class DatabaseAdapter
         return true;
     }
   
-    public void addMarketTransaction(Account account, float depositAmount, int updateType)
+    /*
+        On each successful Market Account transaction, records it in the database
+        @param account the account that made the transaction
+        @param updateAmount the amount deposited or withdrawn 
+        @param updateType whether the transaction was a deposit or withdraw
+    */
+    public void addMarketTransaction(Account account, float updateAmount, int updateType)
     {
-        connect();
         String sql = "";
         String username = account.getUsername();
+        Date date = getCurrentDate();
         try
         {
+            connect();
+
+            //if deposit, use marketIn attribute of Transactions
+            //use transaction to update both Transactions and MarketTransactions
+            if(updateType == 0)
+                sql = "START TRANSACTION "  
+                        + "INSERT INTO Transactions (transDate, marketIn, m_aid) "   
+                         
+                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                        + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                        + "VALUES (?,?,M.m_aid);"
+                        + "INSERT INTO MarketTransactions "
+                        
+                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                        + "WHERE C.username=? AND O.m_aid = M.m_aid"
+                        + "VALUES (M.m_aid, LAST_INSERT_ID()); "
+                    + "COMMIT;";
+            //same thing as above, but for withdraws (marketOut instead of marketIn)
+            else
+                sql  = "BEGIN;"  
+                        + "INSERT INTO Transactions(transDate, marketOut, m_aid)"   
+                        + "VALUES (?,?,M.m_aid)" 
+                        + "FROM MarketAccount M, Customer C, OwnsMarket O "
+                        + "WHERE C.username=? AND O.m_aid = M.m_aid;"
+                        + "INSERT INTO MarketTransactions"
+                        + "VALUES (M.m_aid, LAST_INSERT_ID())"
+                        + "FROM MarketAccount M, Customer C, OwnsMarket O"
+                        + "WHERE C.username=? AND O.m_aid = M.m_aid;"
+                    + "COMMIT;";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setDate(1, date);
+            prepstmt.setFloat(2, updateAmount);
+            prepstmt.setString(3, username);
+            prepstmt.setString(4, username);
+
+            prepstmt.executeQuery();
 
         }
         catch(SQLException se)
@@ -226,12 +329,13 @@ public class DatabaseAdapter
     */
     public float getMarketAccountBalance(Account account)
     {
-        connect();
         String sql = "";
         String username = account.getUsername();
         float balance = 0;
         try
         {
+            connect();
+
             sql = "SELECT M.mbalance FROM MarketAccount M, OwnsMarket O, Customer C WHERE C.username=? AND O.m_aid = M.m_aid;";
 
             prepstmt = conn.prepareStatement(sql);
@@ -257,5 +361,37 @@ public class DatabaseAdapter
             close();
         }
         return balance;
+    }
+    /*
+        Retrieves the current date from the database
+        @return date the current date of tpye java.sql.Date
+    */
+    public Date getCurrentDate()
+    {
+        connect();
+        String sql = "";
+        java.sql.Date date = null;
+        try
+        {
+            //sql query for date
+            sql = "SELECT * FROM Date";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            //get date
+            while(rs.next())
+            {
+                date = rs.getDate("currentDate");
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return date;
     }
 }
