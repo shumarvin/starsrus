@@ -156,6 +156,86 @@ public class UserInterface
 			System.out.println("Creating manager acc");
 		}
 	}
+	//manager user interface
+	private void showManagerInterface()
+	{
+		System.out.println();
+		System.out.println("Welcome " + account.getUsername() + "!");
+		System.out.println();
+		while(true){
+			System.out.println("What would you like to do today?");
+			System.out.println();
+			System.out.println("1. Add interest");
+			System.out.println("2. Generate Monthly Statement");
+			System.out.println("3. List Active Customers");
+			System.out.println("4. Generate Government Drug & Tax Evasion Report(DTER)");
+			System.out.println("5. Generate Customer Report");
+			System.out.println("6. Delete Transactions");
+			System.out.println("7. Log out");
+			System.out.println();
+			System.out.print("Input: ");
+			//check for non-int input
+			if(!reader.hasNextInt())
+			{
+				System.out.println();
+				System.out.println("Error! Invalid Input!");
+				reader.nextLine();
+				continue;
+			}
+			else
+			{
+				int choice = reader.nextInt();
+				//handle invalid input
+				if(choice < 1 || choice > 9)
+				{
+					System.out.println("Invalid input. Please choose one of the 7 options below.");
+					continue;
+				}
+				//switch on choice
+				switch(choice)
+				{
+					case 1: showAddInterest();
+							break;
+					case 2: showMonthlyStatement();
+							break;
+					case 3: showListActiveCustomers();
+							break;
+					case 4: showGovTaxReport();
+							break;
+					case 5: showCustomerReport();
+							break;
+					case 6: showDeleteTransactions();
+							break;
+					default: quit();
+				}
+			}
+		}
+	}
+	private void showAddInterest()
+	{
+
+	}
+	private void showMonthlyStatement()
+	{
+
+	}
+	private void showListActiveCustomers()
+	{
+
+	}
+	private void showGovTaxReport()
+	{
+
+	}
+	private void showCustomerReport()
+	{
+
+	}
+	private void showDeleteTransactions()
+	{
+		
+	}
+
 	//trader user interface
 	private void showTraderInterface()
 	{
