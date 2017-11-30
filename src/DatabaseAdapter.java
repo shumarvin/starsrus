@@ -1,12 +1,14 @@
 //class that interfaces with the database
 import java.sql.*;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class DatabaseAdapter
 {
     // JDBC driver name and database URL
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/marvinshuDB";
+    private static final String MOVIE_DB_URL = "jdbc:mysql://cs174a.engr.ucsb.edu/moviesDB";
 
     //  Database credentials
     private static final String USER = "marvinshu";
@@ -27,8 +29,11 @@ public class DatabaseAdapter
         rs = null;
     }
 
-    //connect to database, make sure to call close afterwards
-    public void connect()
+    /*
+        Connect to either system database or movie database
+        @param database which database to connect to (0 for system, 1 for movie)
+    */
+    private void connect(int database)
     {
         try
         {
@@ -36,9 +41,10 @@ public class DatabaseAdapter
             Class.forName(JDBC_DRIVER);
 
             //Open a connection
-            //System.out.println("Connecting to the database...");
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            //System.out.println("Connected database successfully...");
+            if(database == 0)
+                conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            else
+                conn = DriverManager.getConnection(MOVIE_DB_URL, USER, PASS);
         }
         catch(SQLException se)
         {
@@ -52,7 +58,7 @@ public class DatabaseAdapter
  		}
     }
     //close database connection
-    public void close()
+    private void close()
     {
         try
         {
@@ -79,9 +85,7 @@ public class DatabaseAdapter
             //close connection
             if(conn!=null)
             {
-                //System.out.println("Closing Connection...");
                 conn.close();
-                //System.out.println("Connection Closed.");
             }
         }
         catch(SQLException se)
@@ -98,7 +102,7 @@ public class DatabaseAdapter
     */
     public Account queryAccount(int accountType, String username, String password)
     {
-        connect();
+        connect(0);
         //create query
         String sql = "";
         try
@@ -162,7 +166,7 @@ public class DatabaseAdapter
         }
 
         try {
-            connect();
+            connect(0);
             prepstmt = conn.prepareStatement(updateSql);
             if (accountType == 0) {
               // placeholder for create customer account prepstmts
@@ -205,7 +209,7 @@ public class DatabaseAdapter
 
         try
         {
-            connect();
+            connect(0);
 
             /*
                 Use SQL transaction to add/subtract money from Market Account
@@ -266,8 +270,6 @@ public class DatabaseAdapter
                 conn.rollback();
                 return false;
             }
-
-
         }
         catch(SQLException se)
         {
@@ -294,7 +296,7 @@ public class DatabaseAdapter
         float balance = 0;
         try
         {
-            connect();
+            connect(0);
 
             sql = "SELECT M.mbalance FROM MarketAccount M, OwnsMarket O, Customer C WHERE C.username=? AND O.m_aid = M.m_aid;";
 
@@ -332,7 +334,7 @@ public class DatabaseAdapter
         java.sql.Date date = null;
         try
         {
-            connect();
+            connect(0);
 
             //sql query for date
             sql = "SELECT * FROM Date";
@@ -368,7 +370,7 @@ public class DatabaseAdapter
 
         try
         {
-            connect();
+            connect(0);
 
             //sql query
             sql = "SELECT stocksymbol, currentprice "
@@ -393,5 +395,57 @@ public class DatabaseAdapter
             close();
         }
         return stocks;
+    }
+    /*
+        Gets all movies names from the movie database
+        @return movies all the movie names in an ArrayList
+    */
+    public ArrayList<String> getMovieNames()
+    {
+        String sql = "";
+        ArrayList<String> movies = new ArrayList<String>();
+        try
+        {
+            connect(1);
+
+            //sql query
+            sql = "SELECT title FROM Movies";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            while(rs.next())
+            {
+                movies.add(rs.getString("title"));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return movies;
+    }
+    public boolean hasMovie(String movieName)
+    {
+        String sql = "";
+        try
+        {
+            connect(1);
+
+            sql = "SELECT * from "
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
     }
 }
