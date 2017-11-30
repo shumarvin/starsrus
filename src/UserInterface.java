@@ -10,7 +10,6 @@ public class UserInterface
 	private Account account;                  //user's account
 	private DatabaseAdapter dbAdapter;        //database adapter to interface with database
 	private Console console;                  //console to read in password
-	private XMLParser xmlParser;              //xml parser for movie.xml
 	private NumberFormat formatter;           //formatter for currency
 
 	//constructor
@@ -20,7 +19,6 @@ public class UserInterface
 		dbAdapter = new DatabaseAdapter();
 		console = System.console();
 		formatter = NumberFormat.getCurrencyInstance();
-		xmlParser = new XMLParser("../Movies.xml");
 	}
 
 	//starts program with title and login screen
@@ -422,6 +420,11 @@ public class UserInterface
         {
             System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
         }
+
+        System.out.println();
+        System.out.print("Input: ");
+        String stockToBuy = reader.nextLine();
+        System.out.println("");
 		
 	}
 	private void showSell()
@@ -510,11 +513,12 @@ public class UserInterface
 			System.out.println();
 
 			//get and print all movies
-			ArrayList<String> movies = xmlParser.getMovieNames();
+			ArrayList<String> movies = dbAdapter.getMovieNames();
 			for(String s:movies)
 			{
 				System.out.println(s);
 			}
+			break;
 			System.out.println();
 			//get user input
 			System.out.print("Input: ");
@@ -532,6 +536,7 @@ public class UserInterface
 				System.out.println();
 				break;
 			}
+			
 		}
 	}
 	private void showTopMovies()
