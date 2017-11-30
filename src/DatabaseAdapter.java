@@ -157,19 +157,28 @@ public class DatabaseAdapter
         String updateSql = "";
         int returnVal = 0;
         if (accountType == 0) { // Create customer account
-
+            System.out.println("Create account in DatabaseAdapter");
+            updateSql = "INSERT INTO Customer (username, password, firstName, " 
+              + "lastName, state, phone, email, taxid)"
+              + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         } else {
-            //Everything other than username and password is null, taxid = -1
             System.out.println("Create account in DatabaseAdapter");
             updateSql = "INSERT INTO Manager (username, password)"
-              + "VALUES (?,?);";
+              + "VALUES (?, ?);";
         }
 
         try {
             connect(0);
             prepstmt = conn.prepareStatement(updateSql);
             if (accountType == 0) {
-              // placeholder for create customer account prepstmts
+              prepstmt.setString(1, username);
+              prepstmt.setString(2, password);
+              prepstmt.setString(3, firstName);
+              prepstmt.setString(4, lastName);
+              prepstmt.setString(5, state);
+              prepstmt.setString(6, phone);
+              prepstmt.setString(7, email);
+              prepstmt.setInt(8, taxid);
             } else {
               prepstmt.setString(1, username);
               prepstmt.setString(2, password);

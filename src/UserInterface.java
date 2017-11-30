@@ -154,8 +154,34 @@ public class UserInterface
 		int choice = reader.nextInt();
 		reader.nextLine();
 		if (choice == 1) {
+			System.out.println("");
 			System.out.println("--Creating Customer Account--");
-
+			System.out.print("Enter a username: ");
+			String username = reader.nextLine();
+			System.out.print("Enter a password: ");
+			String password = reader.nextLine();
+			System.out.print("Enter a firstName: ");
+			String firstName = reader.nextLine();
+			System.out.print("Enter a lastName: ");
+			String lastName = reader.nextLine();
+			System.out.print("Enter a state: ");
+			String state = reader.nextLine();
+			System.out.print("Enter a phone: ");
+			String phone = reader.nextLine();
+			System.out.print("Enter a email: ");
+			String email = reader.nextLine();
+			System.out.print("Enter a taxid: ");
+			int taxid = reader.nextInt();
+			reader.nextLine();
+			int temp = dbAdapter.createAccount(0, username, password, firstName, lastName,
+				state, phone, email, taxid);
+			if (temp == 0) {
+				System.out.println("");
+				System.out.println("Customer account has been created for username " + username);
+			} else {
+				System.out.println("");
+				System.out.println("Customer account creation has failed for username " + username);
+			}
 		} else {
 			System.out.println("");
 			System.out.println("--Creating Manager Account--");
@@ -169,7 +195,7 @@ public class UserInterface
 				System.out.println("Manager account has been created for username " + username);
 			} else {
 				System.out.println("");
-				System.out.println("Manager account creation has failed for username " + username); 
+				System.out.println("Manager account creation has failed for username " + username);
 			}
 		}
 	}
