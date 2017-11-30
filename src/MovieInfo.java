@@ -35,7 +35,6 @@ public class MovieInfo
 			info += "Review: " + reviews.get(author) + "    By: " + author + "\n";
 		}
 		return info;
-
 	}
 	/*
 		Getters

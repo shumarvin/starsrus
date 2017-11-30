@@ -565,6 +565,7 @@ public class UserInterface
 			
 		}
 	}
+	//top movies user interface
 	private void showTopMovies()
 	{
 		//have user specify time interval
@@ -576,6 +577,19 @@ public class UserInterface
 		String end = reader.nextLine();
 		System.out.println();
 
+		//get movies and print them out
+		ArrayList<String> movies = dbAdapter.getTopMovies(start, end);
+		if(movies.size() == 0)
+		{
+			System.out.println("Sorry, there were no top-rated movies in that time interval.");
+			System.out.println();
+		}
+		else
+		{
+			for(String movie: movies)
+				System.out.println(movie);
+			System.out.println();
+		}
 	}
 	private void showMovieReviews()
 	{
