@@ -445,7 +445,10 @@ public class DatabaseAdapter
         {
             connect(1);
 
-            sql = "SELECT * from "
+            //sql query
+            sql = "SELECT title FROM Movies";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
         }
         catch(SQLException se)
         {
@@ -456,5 +459,6 @@ public class DatabaseAdapter
         {
             close();
         }
+        return false;
     }
 }
