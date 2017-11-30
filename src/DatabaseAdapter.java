@@ -569,4 +569,44 @@ public class DatabaseAdapter
         }
         return movies;
     }
+    /*
+        Gets all the reviews for a given movie
+        @param movieName the name of the movie
+        @return reviews a HashMap mapping an author
+                to his/her review
+    */
+    public HashMap<String,String> getMovieReviews(String movieName)
+    {
+        String sql = "";
+        HashMap<String,String> reviews = new HashMap<String,String>();
+
+        try
+        {
+            connect(1);
+
+            //sql query
+            sql = "SELECT R.author, R.review FROM Movies M, Reviews R " 
+                + "WHERE M.title = ? AND M.id = R.movie_id;";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, movieName);
+            rs = prepstmt.executeQuery();
+
+            while(rs.next())
+            {
+                //place each review into hashmap
+                reviews.put(rs.getString("author"), rs.getString("review"));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return reviews;
+    }
 }

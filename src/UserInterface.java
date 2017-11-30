@@ -561,8 +561,7 @@ public class UserInterface
 				System.out.println(dbAdapter.getMovieInfo(choice));
 				System.out.println();
 				break;
-			}
-			
+			}		
 		}
 	}
 	//top movies user interface
@@ -591,10 +590,55 @@ public class UserInterface
 			System.out.println();
 		}
 	}
+	//show movie reviews user interface
 	private void showMovieReviews()
 	{
-		System.out.println("show movie reviews");
+		//print out all movies so user can choose which one
+		//to get info on
+		System.out.println("Which movie would you like to see the reviews for?");
+		System.out.println();
+
+		//get and print all movies
+		ArrayList<String> movies = dbAdapter.getMovieNames();
+		for(String s:movies)
+		{
+			System.out.println(s);
+		}
+		System.out.println();
+
+		//get user input
+		System.out.print("Input: ");
+		String choice = reader.nextLine();
+		System.out.println();
+
+		//if invalid, prompt user to try again
+		if(!dbAdapter.hasMovie(choice))
+		{
+			System.out.println("Invalid Movie. Please try again.");
+		}
+		//print out movie reviews and go back to trader interface
+		else
+		{
+			HashMap<String,String> reviews =  dbAdapter.getMovieReviews(choice);
+
+			//0 reviews message
+			if(reviews.size() == 0)
+			{
+				System.out.println("No reviews currently available for that movie.");
+				System.out.println();
+			}
+			else
+			{
+				Set<String> authors = reviews.keySet();
+				for(String author: authors)
+				{
+					System.out.println("Review: " + reviews.get(author) + "    By: " + author);
+				}
+				System.out.println();
+			}
+		}		
 	}
+	//shuts down system
 	private void quit()
 	{
 		System.out.println("Goodbye");
