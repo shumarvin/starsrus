@@ -558,6 +558,7 @@ public class UserInterface
 			//print out movie info and go back to trader interface
 			else
 			{
+				System.out.println(dbAdapter.getMovieInfo(choice));
 				System.out.println();
 				break;
 			}

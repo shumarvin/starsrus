@@ -438,6 +438,11 @@ public class DatabaseAdapter
         }
         return movies;
     }
+    /*
+        Queries movie database to see if movie exists
+        @param movieName the name of the movie
+        @return true if found, false otherwise
+    */
     public boolean hasMovie(String movieName)
     {
         String sql = "";
@@ -446,9 +451,15 @@ public class DatabaseAdapter
             connect(1);
 
             //sql query
-            sql = "SELECT title FROM Movies";
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery(sql);
+            sql = "SELECT title FROM Movies WHERE title = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, movieName);
+            rs = prepstmt.executeQuery();
+
+            //if there is a row with that title, then
+            //the movie exists
+            if(rs.next())
+                return true;
         }
         catch(SQLException se)
         {
@@ -460,5 +471,55 @@ public class DatabaseAdapter
             close();
         }
         return false;
+    }
+    /*
+        Given a movie, returns
+    */
+    public MovieInfo getMovieInfo(String movieName)
+    {
+        String sql = "";
+        MovieInfo movie = new MovieInfo();
+
+        try
+        {
+            connect(1);
+
+            //first sql query to get info from Movies Table
+            sql = "SELECT title, rating, production_year FROM Movies WHERE title = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, movieName);
+            rs = prepstmt.executeQuery();
+
+            while(rs.next())
+            {
+                //first get movie's name, rating, and prod year
+                movie.setMovieName(rs.getString("title"));
+                movie.setRating(rs.getFloat("rating"));
+                movie.setProdYear(rs.getInt("production_year"));
+            }
+
+            //2nd query to get review info from Reviews table
+            sql = "SELECT R.author, R.review FROM Reviews R, Movies M "
+                + "WHERE M.title = ? AND M.id = R.movie_id;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, movieName);
+            rs = prepstmt.executeQuery();
+
+            while(rs.next())
+            {
+                //add reviews
+                movie.addReview(rs.getString("author"), rs.getString("review"));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return movie;
     }
 }
