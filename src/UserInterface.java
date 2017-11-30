@@ -544,14 +544,13 @@ public class UserInterface
 			{
 				System.out.println(s);
 			}
-			break;
 			System.out.println();
 			//get user input
 			System.out.print("Input: ");
 			String choice = reader.nextLine();
 			System.out.println();
 			//if invalid, prompt user to try again
-			if(!xmlParser.printMovie(choice))
+			if(!dbAdapter.hasMovie(choice))
 			{
 				System.out.println("Invalid Movie. Please try again.");
 				continue;
