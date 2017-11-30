@@ -473,7 +473,10 @@ public class DatabaseAdapter
         return false;
     }
     /*
-        Given a movie, returns
+        Given a movie, returns the MovieInfo
+        for that movie
+        @param movieName the name of the movie
+        @return movie the MovieInfo of that movie
     */
     public MovieInfo getMovieInfo(String movieName)
     {
@@ -521,5 +524,49 @@ public class DatabaseAdapter
             close();
         }
         return movie;
+    }
+    /*
+        Gets all the 5-rated movies that were produced in the timeframe
+        @param startYear the beginning time frame
+        @param endYear the ending time frame
+        @return movies an ArrayList of all movie names that fit the 
+                above criteria
+    */
+    public ArrayList<String> getTopMovies(String startYear, String endYear)
+    {
+        String sql = "";
+        ArrayList<String> movies = new ArrayList<String>();
+
+        try
+        {
+            connect(1);
+
+            //sql query
+            sql = "SELECT M.title from Movies M " 
+                + "WHERE M.production_year > ? AND M. production_year < ? "
+                        + "AND M.rating = 5;"; 
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setInt(1, Integer.parseInt(startYear));
+            prepstmt.setInt(2, Integer.parseInt(endYear));
+            rs = prepstmt.executeQuery();
+
+            while(rs.next())
+            {
+                //add to movies
+                movies.add(rs.getString("title"));
+            }
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return movies;
     }
 }
