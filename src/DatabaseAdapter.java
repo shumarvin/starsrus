@@ -23,8 +23,8 @@ public class DatabaseAdapter
     //constructor
     public DatabaseAdapter()
     {
-        Connection conn = null;
-        Statement stmt = null;
+        conn = null;
+        stmt = null;
         prepstmt = null;
         rs = null;
     }
@@ -35,6 +35,12 @@ public class DatabaseAdapter
     */
     private void connect(int database)
     {
+        //if connection already established,
+        //don't do anything
+        if(conn != null)
+        {
+            return;
+        }
         try
         {
             //Register JDBC driver
@@ -86,6 +92,7 @@ public class DatabaseAdapter
             if(conn!=null)
             {
                 conn.close();
+                conn = null;
             }
         }
         catch(SQLException se)
@@ -102,11 +109,12 @@ public class DatabaseAdapter
     */
     public Account queryAccount(int accountType, String username, String password)
     {
-        connect(0);
         //create query
         String sql = "";
         try
         {
+            connect(0);
+
             //customer/manager login query
             if(accountType == 0)
                 sql = "SELECT * FROM Customer WHERE username=? AND password=?";
@@ -229,28 +237,28 @@ public class DatabaseAdapter
             //deposit
             if(updateType == 0)
             {
-                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
-                            + "SET M.mbalance= M.mbalance + ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                updateSql = "UPDATE OwnsMarket O "
+                            + "SET mbalance= mbalance + ? WHERE username=?";;
                 insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "
                             + "VALUES (?,?); ";
 
                 insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
-                                            + "SELECT M.m_aid, LAST_INSERT_ID() "
-                                            + "FROM MarketAccount M, OwnsMarket O, Customer C "
-                                            + "WHERE C.username=? AND O.m_aid = M.m_aid;";
+                                            + "SELECT O.m_aid, LAST_INSERT_ID() "
+                                            + "FROM OwnsMarket O "
+                                            + "WHERE O.username=?;";
             }
             //withdraw
             else
             {
-                updateSql = "UPDATE MarketAccount M, OwnsMarket O, Customer C "
-                            + "SET M.mbalance= M.mbalance - ? WHERE C.username=? AND O.m_aid = M.m_aid;";
+                updateSql = "UPDATE OwnsMarket O "
+                            + "SET mbalance= mbalance - ? WHERE username=?";;
                 insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
                             + "VALUES (?,?); ";
 
                 insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
-                                            + "SELECT M.m_aid, LAST_INSERT_ID() "
-                                            + "FROM MarketAccount M, OwnsMarket O, Customer C "
-                                            + "WHERE C.username=? AND O.m_aid = M.m_aid;";
+                                            + "SELECT O.m_aid, LAST_INSERT_ID() "
+                                            + "FROM OwnsMarket O "
+                                            + "WHERE O.username=?;";
             }
             try
             {
@@ -307,7 +315,8 @@ public class DatabaseAdapter
         {
             connect(0);
 
-            sql = "SELECT M.mbalance FROM MarketAccount M, OwnsMarket O, Customer C WHERE C.username=? AND O.m_aid = M.m_aid;";
+            sql = "SELECT mbalance FROM OwnsMarket "
+                + "WHERE username=?;";
 
             prepstmt = conn.prepareStatement(sql);
             prepstmt.setString(1, username);
@@ -439,6 +448,62 @@ public class DatabaseAdapter
             close();
         }
         return false;
+    }
+    /*
+        Method for buying stocks
+        @param account the trader that's buying
+        @param stockSymbol the stock to buy
+        @param numShares the number of shares to buy
+        @param sharePrice the price of each share
+    */
+    public void buyStock(Account account, String stockSymbol, int numShares, float sharePrice)
+    {
+        String sql = "";
+        String updateSqlTransaction = "";
+        String insertSQLStockTransaction = "";
+        String username = account.getUsername();
+        float commission = 0;
+
+        try
+        {
+            connect(0);
+
+            //query database for buy commission
+            sql = "SELECT amount FROM Commission WHERE transaction = 'buy';";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next())
+            {
+                commission = rs.getFloat("amount");
+            }
+
+            //calculate total price
+            float totalPrice = sharePrice * numShares + commission;
+
+            //withdraw total amount from trader's market account
+            //will abort if not enough money
+            updateMarketAccount(account,totalPrice,1);
+
+            //now record transaction
+            conn.setAutoCommit(false);
+            updateSqlTransaction = "UPDATE Transactions SET sharesIn = ? stockSymbol = ? "
+                                + "WHERE transNum = (SELECT transNum FROM Customer C, OwnsMarket O, MarketAccount M "
+                                + "WHERE C.username = ? AND O.m_aid = M.m_aid);"; 
+
+            insertSQLStockTransaction = "INSERT INTO StockTransactions (m_aid,transNum) "
+                                        + "SELECT M.m_aid, LAST_INSERT_ID() "
+                                        + "FROM MarketAccount M, OwnsMarket O, Customer C "
+                                        + "WHERE C.username=? AND O.m_aid = M.m_aid;";
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        finally
+        {
+            close();
+        }
     }
     /*
         Gets all movies names from the movie database
