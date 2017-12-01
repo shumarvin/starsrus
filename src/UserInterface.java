@@ -156,6 +156,15 @@ public class UserInterface
 		if (choice == 1) {
 			System.out.println("");
 			System.out.println("--Creating Customer Account--");
+
+			// Prompt user that he/she must deposit $1,000 into market account
+			System.out.print("You must deposit $1,000 into market account. Is this ok? (y/n): ");
+			String promptThousand = reader.nextLine();
+			if (!promptThousand.equals("y")) {
+				System.out.println("---Leaving customer account creation---");
+				return;
+			}
+
 			System.out.print("Enter a username: ");
 			String username = reader.nextLine();
 			System.out.print("Enter a password: ");
@@ -386,7 +395,7 @@ public class UserInterface
 				}
 				//confirm deposit or withdraw
 				if(updateType == 0)
-					System.out.println("You are depositing " + formatter.format(depositAmount) + 
+					System.out.println("You are depositing " + formatter.format(depositAmount) +
 									". Is this the correct amount? (y/n)");
 				else
 					System.out.println("You are withdrawing " + formatter.format(depositAmount)
@@ -500,8 +509,7 @@ public class UserInterface
         		System.out.println();
         		continue;
         	}
-		}
-		
+    }
 	}
 	private void showSell()
 	{
@@ -611,7 +619,7 @@ public class UserInterface
 				System.out.println(dbAdapter.getMovieInfo(choice));
 				System.out.println();
 				break;
-			}		
+			}
 		}
 	}
 	//top movies user interface
@@ -686,7 +694,7 @@ public class UserInterface
 				}
 				System.out.println();
 			}
-		}		
+		}
 	}
 	//shuts down system
 	private void quit()

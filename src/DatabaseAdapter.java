@@ -166,7 +166,7 @@ public class DatabaseAdapter
         int returnVal = 0;
         if (accountType == 0) { // Create customer account
             System.out.println("Create account in DatabaseAdapter");
-            updateSql = "INSERT INTO Customer (username, password, firstName, " 
+            updateSql = "INSERT INTO Customer (username, password, firstName, "
               + "lastName, state, phone, email, taxid)"
               + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         } else {
@@ -198,6 +198,40 @@ public class DatabaseAdapter
         } finally {
             close();
         }
+
+        // returnVal == 0 if customer account has been successfully created
+        // then update ownsStock and ownsMarket
+        if (returnVal == 0 && accountType == 0) {
+            String ownsStockSql = "";
+            String ownsMarketSql = "";
+            ownsStockSql = "INSERT INTO OwnsStock (username)"
+                + "VALUES (?);";
+            ownsMarketSql = "INSERT INTO OwnsMarket (username, mbalance)"
+                + "VALUES (?, ?);";
+
+
+            try {
+                connect(0);
+
+                // Create new entry in ownsStock, creating a new stock account
+                prepstmt = conn.prepareStatement(ownsStockSql);
+                prepstmt.setString(1, username);
+                prepstmt.executeUpdate();
+
+                // Create new entry in ownsMarket with $1,000 balance
+                prepstmt = conn.prepareStatement(ownsMarketSql);
+                prepstmt.setString(1, username);
+                prepstmt.setFloat(2, 1000);
+                prepstmt.executeUpdate();
+            } catch(SQLException se) {
+                se.printStackTrace();
+                returnVal = -1;
+            } finally {
+                close();
+            }
+
+        }
+
         return returnVal;
     }
     /*
@@ -377,7 +411,7 @@ public class DatabaseAdapter
     }
     /*
         Gets all the stocks and their prices
-        @return stocks a Hashmap of all the 
+        @return stocks a Hashmap of all the
         stock symbols mapped to their
         current prices
     */
@@ -767,7 +801,7 @@ public class DatabaseAdapter
         Gets all the 5-rated movies that were produced in the timeframe
         @param startYear the beginning time frame
         @param endYear the ending time frame
-        @return movies an ArrayList of all movie names that fit the 
+        @return movies an ArrayList of all movie names that fit the
                 above criteria
     */
     public ArrayList<String> getTopMovies(String startYear, String endYear)
@@ -780,9 +814,9 @@ public class DatabaseAdapter
             connect(1);
 
             //sql query
-            sql = "SELECT M.title from Movies M " 
+            sql = "SELECT M.title from Movies M "
                 + "WHERE M.production_year > ? AND M. production_year < ? "
-                        + "AND M.rating = 5;"; 
+                        + "AND M.rating = 5;";
 
             prepstmt = conn.prepareStatement(sql);
             prepstmt.setInt(1, Integer.parseInt(startYear));
@@ -823,7 +857,7 @@ public class DatabaseAdapter
             connect(1);
 
             //sql query
-            sql = "SELECT R.author, R.review FROM Movies M, Reviews R " 
+            sql = "SELECT R.author, R.review FROM Movies M, Reviews R "
                 + "WHERE M.title = ? AND M.id = R.movie_id;";
 
             prepstmt = conn.prepareStatement(sql);
