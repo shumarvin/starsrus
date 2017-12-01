@@ -405,6 +405,35 @@ public class DatabaseAdapter
         }
         return stocks;
     }
+    public boolean hasStock(String stocksymbol)
+    {
+        String sql = "";
+        try
+        {
+            connect(0);
+
+            //sql query
+            sql = "SELECT stocksymbol FROM Stock "
+                + "WHERE stocksymbol = ?";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, stocksymbol);
+            rs = prepstmt.executeQuery();
+
+            if(rs.next())
+                return true;    
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return false;
+    }
     /*
         Gets all movies names from the movie database
         @return movies all the movie names in an ArrayList
