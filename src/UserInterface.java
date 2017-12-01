@@ -452,7 +452,7 @@ public class UserInterface
 	        }
 	        //read in which stock to buy
 	        System.out.println();
-	        System.out.print("Input: ");
+	        System.out.print("Input(all caps): ");
 	        String stockToBuy = reader.nextLine();
 
 	        //loop so that user can re-input number of shares if 
@@ -482,7 +482,15 @@ public class UserInterface
 	        //check to see if user input stockSymbol correctly
 			if(dbAdapter.hasStock(stockToBuy))
 			{
-				dbAdapter.buyStock(account,stockToBuy, numShares, stocks.get(stockToBuy));
+				if(dbAdapter.buyStock(account,stockToBuy, numShares, stocks.get(stockToBuy)))
+				{
+					System.out.println("Purchase Successful!");
+					System.out.println();
+				}
+				else
+				{
+					System.out.println("Error occurred. See above for details.");
+				}
 				break;
 			}	        	
         	else
