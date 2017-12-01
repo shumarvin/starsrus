@@ -328,6 +328,7 @@ public class UserInterface
 			else
 			{
 				int choice = reader.nextInt();
+				reader.nextLine();
 				//handle invalid input
 				if(choice < 1 || choice > 9)
 				{
@@ -445,22 +446,70 @@ public class UserInterface
 	//buy stocks user interface
 	private void showBuy()
 	{
-		//show all stocks and their prices
-		System.out.println("Which stocks would you like to buy?");
-		System.out.println();
-		System.out.println("Stock Symbol    Price");
-		HashMap<String,Float> stocks = dbAdapter.getStocks();
-		Set<String> stockSymbols = stocks.keySet();
-        for(String symbol: stockSymbols)
-        {
-            System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
-        }
+		int numShares;
+		while(true)
+		{
+			//show all stocks and their prices
+			System.out.println("Which stocks would you like to buy?");
+			System.out.println();
+			System.out.println("Stock Symbol    Price");
+			HashMap<String,Float> stocks = dbAdapter.getStocks();
+			Set<String> stockSymbols = stocks.keySet();
+	        for(String symbol: stockSymbols)
+	        {
+	            System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
+	        }
+	        //read in which stock to buy
+	        System.out.println();
+	        System.out.print("Input(all caps): ");
+	        String stockToBuy = reader.nextLine();
 
-        System.out.println();
-        System.out.print("Input: ");
-        String stockToBuy = reader.nextLine();
-        System.out.println("");
+	        //loop so that user can re-input number of shares if 
+	        //they didn't put in an integer
+	        while(true)
+	        {
+	        	//read in number of shares to buy
+		        System.out.println("How many shares would you like to buy?");
+		        System.out.println();
+		        System.out.print("Input: ");
+		        
+		        //check for non-int input
+		        if(!reader.hasNextInt())
+				{
+					System.out.println("Invalid input. Please try again.");
+					reader.nextLine();
+					continue;
+				}
+				else
+				{
+					numShares = reader.nextInt();
+		        	reader.nextLine();
+		        	break;
+				}	
+	        }
 
+	        //check to see if user input stockSymbol correctly
+			if(dbAdapter.hasStock(stockToBuy))
+			{
+				if(dbAdapter.buyStock(account,stockToBuy, numShares, stocks.get(stockToBuy)))
+				{
+					System.out.println("Purchase Successful!");
+					System.out.println();
+				}
+				else
+				{
+					System.out.println("Error occurred. See above for details.");
+				}
+				break;
+			}	        	
+        	else
+        	{
+        		//print error and return to beginning of buy interface
+        		System.out.println("Error! That stock doesn't exist!");
+        		System.out.println();
+        		continue;
+        	}
+    }
 	}
 	private void showSell()
 	{
