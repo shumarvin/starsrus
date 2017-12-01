@@ -479,6 +479,7 @@ public class UserInterface
 				}	
 	        }
 
+	        //check to see if user input stockSymbol correctly
 			if(dbAdapter.hasStock(stockToBuy))
 			{
 				System.out.println("Buying stock...");

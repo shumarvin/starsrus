@@ -405,6 +405,11 @@ public class DatabaseAdapter
         }
         return stocks;
     }
+    /*
+        Checks to see if a particular stock exists
+        @param stocksymbol the stock to check
+        @return true if it exists, false otherwise
+    */
     public boolean hasStock(String stocksymbol)
     {
         String sql = "";
@@ -420,6 +425,7 @@ public class DatabaseAdapter
             prepstmt.setString(1, stocksymbol);
             rs = prepstmt.executeQuery();
 
+            //if rs is not empty, then stock exists
             if(rs.next())
                 return true;    
         }
