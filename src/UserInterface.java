@@ -455,7 +455,7 @@ public class UserInterface
 	        System.out.print("Input: ");
 	        String stockToBuy = reader.nextLine();
 
-	        //loop so that user can reinput number of shares if 
+	        //loop so that user can re-input number of shares if 
 	        //they didn't put in an integer
 	        while(true)
 	        {
@@ -482,7 +482,7 @@ public class UserInterface
 	        //check to see if user input stockSymbol correctly
 			if(dbAdapter.hasStock(stockToBuy))
 			{
-				System.out.println("Buying stock...");
+				dbAdapter.buyStock(account,stockToBuy, numShares, stocks.get(stockToBuy));
 				break;
 			}	        	
         	else
