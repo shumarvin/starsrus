@@ -446,7 +446,7 @@ public class UserInterface
 	//buy stocks user interface
 	private void showBuy()
 	{
-		int numShares;
+		float numShares;
 		while(true)
 		{
 			//show all stocks and their prices
@@ -455,38 +455,38 @@ public class UserInterface
 			System.out.println("Stock Symbol    Price");
 			HashMap<String,Float> stocks = dbAdapter.getStocks();
 			Set<String> stockSymbols = stocks.keySet();
-	        for(String symbol: stockSymbols)
-	        {
-	            System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
-	        }
-	        //read in which stock to buy
-	        System.out.println();
-	        System.out.print("Input(all caps): ");
-	        String stockToBuy = reader.nextLine();
+      for(String symbol: stockSymbols)
+      {
+          System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
+      }
+      //read in which stock to buy
+      System.out.println();
+      System.out.print("Input(all caps): ");
+      String stockToBuy = reader.nextLine();
 
-	        //loop so that user can re-input number of shares if 
-	        //they didn't put in an integer
-	        while(true)
-	        {
-	        	//read in number of shares to buy
-		        System.out.println("How many shares would you like to buy?");
-		        System.out.println();
-		        System.out.print("Input: ");
-		        
-		        //check for non-int input
-		        if(!reader.hasNextInt())
-				{
-					System.out.println("Invalid input. Please try again.");
-					reader.nextLine();
-					continue;
-				}
-				else
-				{
-					numShares = reader.nextInt();
-		        	reader.nextLine();
-		        	break;
-				}	
-	        }
+      //loop so that user can re-input number of shares if
+      //they didn't put in a float
+      while(true)
+      {
+      	//read in number of shares to buy
+        System.out.println("How many shares would you like to buy?");
+        System.out.println();
+        System.out.print("Input: ");
+
+        //check for non-int input
+        if(!reader.hasNextFloat())
+					{
+						System.out.println("Invalid input. Please try again.");
+						reader.nextLine();
+						continue;
+					}
+					else
+					{
+						numShares = reader.nextFloat();
+	        	reader.nextLine();
+	        	break;
+					}
+      }
 
 	        //check to see if user input stockSymbol correctly
 			if(dbAdapter.hasStock(stockToBuy))
@@ -501,7 +501,7 @@ public class UserInterface
 					System.out.println("Error occurred. See above for details.");
 				}
 				break;
-			}	        	
+			}
         	else
         	{
         		//print error and return to beginning of buy interface
@@ -513,7 +513,56 @@ public class UserInterface
 	}
 	private void showSell()
 	{
-		System.out.println("show sell");
+		float numShares;
+		float buyingPrice;
+		while(true)
+		{
+			//show all owned stocks and their prices
+			System.out.println("Which stocks would you like to sell?");
+			System.out.println();
+			System.out.println(  "Stock Symbol    Shares Owned     Orig Buying Price");
+			ArrayList<OwnedStocks> stocks = dbAdapter.getOwnedStocks(account);
+			for(OwnedStocks stock : stocks)
+			{
+				System.out.println("     "+ stock.getStocksymbol() + "       " + stock.getSbalance()
+						+ "       " + formatter.format(stock.getBuyprice()));
+			}
+			System.out.print("Input: ");
+			String stocksymbol = reader.nextLine();
+			while(true){
+					System.out.println("How many would you like to sell?");
+					System.out.print("Input: ");
+					if(!reader.hasNextFloat())
+					{
+						System.out.println();
+						System.out.println("Error! Invalid Input!");
+						reader.nextLine();
+						continue;
+					}
+					numShares = reader.nextFloat();
+					reader.nextLine();
+					break;
+			}
+			while(true){
+					System.out.println("What was the original buying price?");
+					System.out.print("Input: ");
+					if(!reader.hasNextFloat())
+					{
+						System.out.println();
+						System.out.println("Error! Invalid Input!");
+						reader.nextLine();
+						continue;
+					}
+					buyingPrice = reader.nextFloat();
+					reader.nextLine();
+					break;
+			}
+			if (dbAdapter.sellStock(account, stocksymbol, numShares, buyingPrice))
+			{
+					System.out.println("Shares have been sold!");
+					break;
+			}
+    }
 	}
 	private void showMarketBalance()
 	{
