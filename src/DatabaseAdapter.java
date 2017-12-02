@@ -286,7 +286,7 @@ public class DatabaseAdapter
             {
                 updateSql = "UPDATE OwnsMarket O "
                             + "SET mbalance= mbalance - ? WHERE username=?";
-                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "
                             + "VALUES (?,?); ";
 
                 insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
@@ -470,7 +470,7 @@ public class DatabaseAdapter
 
             //if rs is not empty, then stock exists
             if(rs.next())
-                return true;    
+                return true;
         }
         catch(SQLException se)
         {
@@ -491,7 +491,7 @@ public class DatabaseAdapter
         @param sharePrice the price of each share
         @return true if successful, false otherwise
     */
-    public boolean buyStock(Account account, String stockSymbol, int numShares, float sharePrice)
+    public boolean buyStock(Account account, String stockSymbol, float numShares, float sharePrice)
     {
         String sql = "";
         String updateSql = "";
@@ -536,7 +536,7 @@ public class DatabaseAdapter
             //withdraw total amount from trader's market account
             updateSql = "UPDATE OwnsMarket O "
                             + "SET mbalance= mbalance - ? WHERE username=?";
-            insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "   
+            insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "
                         + "VALUES (?,?); ";
 
             insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
@@ -546,7 +546,7 @@ public class DatabaseAdapter
 
             //now record transaction
             updateSqlTransaction = "UPDATE Transactions SET sharesIn = ?, stockSymbol = ? "
-                                + "WHERE transNum = LAST_INSERT_ID();"; 
+                                + "WHERE transNum = LAST_INSERT_ID();";
 
             insertSQLStockTransaction = "INSERT INTO StockTransactions (s_aid,transNum) "
                                         + "SELECT S.s_aid, LAST_INSERT_ID()"
@@ -558,7 +558,7 @@ public class DatabaseAdapter
             if(hasBoughtStock(account, stockSymbol, sharePrice))
             {
                 sqlTracksStocks = "UPDATE TracksStocks SET sbalance = sbalance + ? "
-                                + "WHERE stocksymbol = ? AND s_aid = (SELECT S.s_aid FROM TracksStocks T, OwnsStock S" 
+                                + "WHERE stocksymbol = ? AND s_aid IN (SELECT S.s_aid FROM (SELECT * FROM TracksStocks) AS T, OwnsStock S"
                                 +" WHERE S.username = ? AND S.s_aid = T.s_aid)";
             }
             //otherwise, make a new entry
@@ -568,10 +568,14 @@ public class DatabaseAdapter
                                 + "SELECT O.s_aid, ?, ?, ? "
                                 + "FROM Customer C, OwnsStock O "
                                 + "WHERE C.username = ? AND C.username = O.username";
-            }    
-            
+            }
+
             try
             {
+                if (conn == null) {
+                  System.out.println("conn is null for some reason...");
+                }
+
                 //first update market account balance
                 prepstmt = conn.prepareStatement(updateSql);
                 prepstmt.setFloat(1, totalPrice);
@@ -590,7 +594,7 @@ public class DatabaseAdapter
 
                 //add shares in and stock symbol to transaction
                 prepstmt = conn.prepareStatement(updateSqlTransaction);
-                prepstmt.setInt(1, numShares);
+                prepstmt.setFloat(1, numShares);
                 prepstmt.setString(2, stockSymbol);
                 prepstmt.executeUpdate();
 
@@ -603,18 +607,21 @@ public class DatabaseAdapter
                 if(hasBoughtStock(account, stockSymbol, sharePrice))
                 {
                     prepstmt = conn.prepareStatement(sqlTracksStocks);
-
+                    prepstmt.setFloat(1, numShares);
+                    prepstmt.setString(2, stockSymbol);
+                    prepstmt.setString(3, username);
+                    prepstmt.executeUpdate();
                 }
                 else
                 {
                     prepstmt = conn.prepareStatement(sqlTracksStocks);
                     prepstmt.setString(1, stockSymbol);
-                    prepstmt.setInt(2, numShares);
-                    prepstmt.setFloat(3, sharePrice * numShares);
+                    prepstmt.setFloat(2, numShares);
+                    prepstmt.setFloat(3, sharePrice);
                     prepstmt.setString(4, username);
                     prepstmt.executeUpdate();
                 }
-                
+
 
                 conn.commit();
                 conn.setAutoCommit(true);
@@ -639,6 +646,237 @@ public class DatabaseAdapter
         return true;
     }
     /*
+        Method for selling stocks
+        @param account the trader that's buying
+        @param stockSymbol the stock to buy
+        @param numShares the number of shares to buy
+        @param sharePrice the price of each share
+        @return true if successful, false otherwise
+    */
+    public boolean sellStock(Account account, String stockSymbol, float numShares, float sharePrice)
+    {
+        String sql = "";
+        String username = account.getUsername();
+        String takeStockSql = "";
+        String updateSql = "";
+        String insertSqlTransaction = "";
+        String insertSQLMarketTransaction = "";
+        String updateSqlTransaction = "";
+        String insertSQLStockTransaction = "";
+        float commission = -1;
+        float currentprice = -1;
+        float profit = 0;
+        Date date = getCurrentDate();
+        //ArrayList<OwnedStocks> stocks = dbAdapter.getOwnedStocks(account);
+        try
+        {
+            connect(0);
+            // Check if customer has said stocks to sell
+            sql = "SELECT * FROM TracksStocks T, OwnsStock O "
+                + "WHERE O.username=? AND O.s_aid=T.s_aid AND T.stocksymbol=? "
+                + "AND T.buyprice=? AND T.sbalance>=?;";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            prepstmt.setString(2, stockSymbol);
+            prepstmt.setFloat(3, sharePrice);
+            prepstmt.setFloat(4, numShares);
+            rs = prepstmt.executeQuery();
+            if (!rs.next()) {
+                System.out.println("Invalid stock");
+                close();
+                return false;
+            }
+
+            sql = "SELECT amount FROM Commission WHERE transaction = 'sell';";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next())
+            {
+                commission = rs.getFloat("amount");
+            }
+
+            sql = "SELECT currentprice FROM Stock WHERE stocksymbol = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, stockSymbol);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+            {
+                currentprice = rs.getFloat("currentprice");
+            }
+            float totalSellPrice = numShares * currentprice - commission;
+            profit = numShares*(currentprice - sharePrice);
+
+
+            conn.setAutoCommit(false);
+
+            try
+            {
+                // Decrease sbalance in appropriate tuple in TracksStocks
+                takeStockSql = "UPDATE TracksStocks SET sbalance = sbalance - ? "
+                             + "WHERE (s_aid, stocksymbol, sbalance, buyprice) IN "
+                             + "(SELECT T.s_aid, T.stocksymbol, T.sbalance, T.buyprice FROM (SELECT * FROM TracksStocks) AS T, OwnsStock O "
+                             + "WHERE O.username=? AND O.s_aid=T.s_aid AND T.stocksymbol=? "
+                             + "AND T.buyprice=? AND T.sbalance>=?);";
+
+                //deposit total amount into trader's market account
+                updateSql = "UPDATE OwnsMarket O "
+                          + "SET mbalance= mbalance + ? WHERE username=?";
+                insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "
+                          + "VALUES (?,?); ";
+
+                insertSQLMarketTransaction = "INSERT INTO MarketTransactions (m_aid,transNum) "
+                                           + "SELECT O.m_aid, LAST_INSERT_ID() "
+                                           + "FROM OwnsMarket O "
+                                           + "WHERE O.username=?;";
+
+                //now record transaction
+                updateSqlTransaction = "UPDATE Transactions SET sharesOut = ?, stockSymbol = ?, profit = ? "
+                                     + "WHERE transNum = LAST_INSERT_ID();";
+
+                insertSQLStockTransaction = "INSERT INTO StockTransactions (s_aid,transNum) "
+                                            + "SELECT S.s_aid, LAST_INSERT_ID()"
+                                            + "FROM OwnsStock S "
+                                            + "WHERE S.username=?;";
+
+                //first update stock balance
+                prepstmt = conn.prepareStatement(takeStockSql);
+                prepstmt.setFloat(1, numShares);
+                prepstmt.setString(2, username);
+                prepstmt.setString(3, stockSymbol);
+                prepstmt.setFloat(4, sharePrice);
+                prepstmt.setFloat(5, numShares);
+                prepstmt.executeUpdate();
+
+
+                //deposit total amount into trader's market balance
+                prepstmt = conn.prepareStatement(updateSql);
+                prepstmt.setFloat(1, totalSellPrice);
+                prepstmt.setString(2, username);
+                prepstmt.executeUpdate();
+
+                //then record the transaction
+                prepstmt = conn.prepareStatement(insertSqlTransaction);
+                prepstmt.setDate(1, date);
+                prepstmt.setFloat(2, totalSellPrice);
+                prepstmt.executeUpdate();
+
+                prepstmt = conn.prepareStatement(insertSQLMarketTransaction);
+                prepstmt.setString(1,username);
+                prepstmt.executeUpdate();
+
+                //add shares out and stock symbol to transaction
+                prepstmt = conn.prepareStatement(updateSqlTransaction);
+                prepstmt.setFloat(1, numShares);
+                prepstmt.setString(2, stockSymbol);
+                prepstmt.setFloat(3, profit);
+                prepstmt.executeUpdate();
+
+                //insert transaction into StockTransaction table
+                prepstmt = conn.prepareStatement(insertSQLStockTransaction);
+                prepstmt.setString(1, username);
+                prepstmt.executeUpdate();
+
+                conn.commit();
+                conn.setAutoCommit(true);
+
+                if (getStocksBalance(account, stockSymbol, sharePrice) == 0)
+                {
+                    sql = "DELETE FROM TracksStocks "
+                        + "WHERE S.username=? AND S.s_aid=T.s_aid AND T.stocksymbol=? "
+                        + "AND T.buyprice=?";
+                    prepstmt = conn.prepareStatement(sql);
+                    prepstmt.setString(1, username);
+                    prepstmt.setString(2, stockSymbol);
+                    prepstmt.setFloat(3, sharePrice);
+                    prepstmt.executeUpdate();
+                }
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();
+                return false;
+            }
+
+            return true;
+
+
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+    }
+
+    private float getStocksBalance(Account account, String stocksymbol, float buyPrice)
+    {
+        String sql = "";
+        String username = account.getUsername();
+        float stocksBalance = -1;
+        try
+        {
+            sql = "SELECT * FROM TracksStocks T, OwnsStock S "
+                + "WHERE S.username=? AND S.s_aid=T.s_aid AND T.stocksymbol=? "
+                + "AND T.buyprice=?";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            prepstmt.setString(2, stocksymbol);
+            prepstmt.setFloat(3, buyPrice);
+            rs = prepstmt.executeQuery();
+            while (rs.next())
+            {
+                stocksBalance = rs.getFloat("sbalance");
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return -1;
+        }
+        return stocksBalance;
+    }
+
+    /*
+        Method to get an account's owned stocks
+    */
+    public ArrayList<OwnedStocks> getOwnedStocks(Account account)
+    {
+        String sql = "";
+        String username = account.getUsername();
+        ArrayList<OwnedStocks> stocks = new ArrayList<OwnedStocks>();
+        try
+        {
+            connect(0);
+            sql = "SELECT * FROM TracksStocks T, OwnsStock S "
+                + "WHERE S.username=? AND S.s_aid=T.s_aid ";
+
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            rs = prepstmt.executeQuery();
+            while (rs.next())
+            {
+              stocks.add(new OwnedStocks(rs.getString("stocksymbol"), rs.getFloat("sbalance")
+                  , rs.getFloat("buyprice")));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return stocks;
+    }
+    /*
         Checks to see if trader has bought the stock at the specified share price
         @param Account the trader's account
         @param stockSymbol the stock
@@ -649,6 +887,7 @@ public class DatabaseAdapter
     {
         String sql = "";
         String username = account.getUsername();
+        boolean hasStock = false;
 
         try
         {
@@ -664,18 +903,14 @@ public class DatabaseAdapter
             rs = prepstmt.executeQuery();
 
             if(rs.next())
-                return true;
+                hasStock = true;
         }
         catch(SQLException se)
         {
             se.printStackTrace();
             return false;
         }
-        finally
-        {
-            close();
-        }
-        return false;
+        return hasStock;
     }
     /*
         Gets all movies names from the movie database
