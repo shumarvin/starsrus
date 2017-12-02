@@ -783,8 +783,10 @@ public class DatabaseAdapter
                 if (getStocksBalance(account, stockSymbol, sharePrice) == 0)
                 {
                     sql = "DELETE FROM TracksStocks "
-                        + "WHERE S.username=? AND S.s_aid=T.s_aid AND T.stocksymbol=? "
-                        + "AND T.buyprice=?";
+                        + "WHERE (s_aid, stocksymbol, sbalance, buyprice) IN "
+                             + "(SELECT T.s_aid, T.stocksymbol, T.sbalance, T.buyprice FROM (SELECT * FROM TracksStocks) AS T, OwnsStock O "
+                             + "WHERE O.username=? AND O.s_aid=T.s_aid AND T.stocksymbol=? "
+                             + "AND T.buyprice=? AND T.sbalance = 0);";
                     prepstmt = conn.prepareStatement(sql);
                     prepstmt.setString(1, username);
                     prepstmt.setString(2, stockSymbol);
