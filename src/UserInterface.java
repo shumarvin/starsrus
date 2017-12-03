@@ -452,12 +452,14 @@ public class UserInterface
 			//show all stocks and their prices
 			System.out.println("Which stocks would you like to buy?");
 			System.out.println();
-			System.out.println("Stock Symbol    Price");
+			System.out.println("StockSymbol      Price");
 			HashMap<String,Float> stocks = dbAdapter.getStocks();
 			Set<String> stockSymbols = stocks.keySet();
       for(String symbol: stockSymbols)
       {
-          System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
+          // System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
+					System.out.println(String.format("%11s", symbol)
+								+ String.format("%11s", formatter.format(stocks.get(symbol))));
       }
       //read in which stock to buy
       System.out.println();
@@ -520,12 +522,13 @@ public class UserInterface
 			//show all owned stocks and their prices
 			System.out.println("Which stocks would you like to sell?");
 			System.out.println();
-			System.out.println(  "Stock Symbol    Shares Owned     Orig Buying Price");
+			System.out.println(  "StockSymbol    SharesOwned    OrigBuyingPrice");
 			ArrayList<OwnedStocks> stocks = dbAdapter.getOwnedStocks(account);
 			for(OwnedStocks stock : stocks)
 			{
-				System.out.println("     "+ stock.getStocksymbol() + "       " + stock.getSbalance()
-						+ "       " + formatter.format(stock.getBuyprice()));
+				System.out.println(String.format("%11s", stock.getStocksymbol())
+							+ String.format("%15s", stock.getSbalance())
+							+ String.format("%19s", formatter.format(stock.getBuyprice())));
 			}
 			System.out.print("Input: ");
 			String stocksymbol = reader.nextLine();
