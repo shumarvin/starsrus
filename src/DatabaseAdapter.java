@@ -1238,6 +1238,10 @@ public class DatabaseAdapter
         sql = "DELETE FROM Transactions;";
         prepstmt = conn.prepareStatement(sql);
         prepstmt.executeUpdate();
+
+        sql = "ALTER TABLE Transactions AUTO_INCREMENT = 1;";
+        prepstmt = conn.prepareStatement(sql);
+        prepstmt.executeUpdate(); 
       }
       catch(SQLException se)
       {
