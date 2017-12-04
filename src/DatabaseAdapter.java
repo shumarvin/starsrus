@@ -1228,4 +1228,27 @@ public class DatabaseAdapter
         }
         return reviews;
     }
+    // Manager methods
+    public boolean deleteTransactions()
+    {
+      String sql = "";
+      try
+      {
+        connect(0);
+        sql = "DELETE FROM Transactions;";
+        prepstmt = conn.prepareStatement(sql);
+        prepstmt.executeUpdate();
+      }
+      catch(SQLException se)
+      {
+        // Delete failed for some reason
+        se.printStackTrace();
+        return false;
+      }
+      finally
+      {
+        close();
+      }
+      return true;
+    }
 }
