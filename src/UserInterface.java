@@ -285,7 +285,13 @@ public class UserInterface
 	}
 	private void showDeleteTransactions()
 	{
-		System.out.println("Delete Transactions for new month");
+		System.out.println("\nDelete Transactions for new month");
+		boolean successful = dbAdapter.deleteTransactions();
+		if (successful == true) {
+			System.out.println("All transactions have been deleted");
+		} else {
+			System.out.println("Error on deleting transactions");
+		}
 	}
 
 	//trader user interface
@@ -312,7 +318,7 @@ public class UserInterface
 			System.out.println("4. Sell Stocks");
 			System.out.println("5. Show Market Account Balance");
 			System.out.println("6. Show Stock Transaction History");
-			System.out.println("7. List Current Stock Price");
+			System.out.println("7. List Current Stock Price and Actor Profile");
 			System.out.println("8. List Movie Information");
 			System.out.println("9. Log out");
 			System.out.println();
@@ -452,7 +458,7 @@ public class UserInterface
 			//show all stocks and their prices
 			System.out.println("Which stocks would you like to buy?");
 			System.out.println();
-			System.out.println("StockSymbol      Price");
+			System.out.println("StockSymbol------Price");
 			HashMap<String,Float> stocks = dbAdapter.getStocks();
 			Set<String> stockSymbols = stocks.keySet();
       for(String symbol: stockSymbols)
@@ -521,7 +527,7 @@ public class UserInterface
 			//show all owned stocks and their prices
 			System.out.println("Which stocks would you like to sell?");
 			System.out.println();
-			System.out.println(  "StockSymbol    SharesOwned    OrigBuyingPrice");
+			System.out.println("StockSymbol----SharesOwned----OrigBuyingPrice");
 			ArrayList<OwnedStocks> stocks = dbAdapter.getOwnedStocks(account);
 			for(OwnedStocks stock : stocks)
 			{
@@ -571,6 +577,7 @@ public class UserInterface
 		float balance = dbAdapter.getMarketAccountBalance(account);
 		if(balance != -1)
 		{
+			System.out.println("---Show Market Balance---");
 			System.out.println("Your balance is: " + formatter.format(balance));
 			System.out.println();
 		}
@@ -587,8 +594,8 @@ public class UserInterface
 
 		System.out.println();
 		System.out.println("---Here are your stock transactions---");
-		System.out.println("TransNum    TransDate    MarketIn    MarketOut"
-		 + "    SharesIn    SharesOut    StockSymbol    Profit");
+		System.out.println("TransNum----TransDate----MarketIn----MarketOut"
+		 + "----SharesIn----SharesOut----StockSymbol----Profit");
 		for(Transaction trans : tlist)
 		{
 			System.out.println(String.format("%8s", trans.gettransNum())
@@ -602,12 +609,11 @@ public class UserInterface
 						);
 		}
 	}
-	// NOTE TODO
 	// Method to show a stock's price and the relevant actor's profile
 	private void showCurrentStockPrice()
 	{
 		System.out.println("Which stock would you like to see the actor profile for?");
-		System.out.println("StockSymbol      Price");
+		System.out.println("StockSymbol------Price");
 		HashMap<String,Float> stocks = dbAdapter.getStocks();
 		Set<String> stockSymbols = stocks.keySet();
 		for(String symbol: stockSymbols)
@@ -625,15 +631,16 @@ public class UserInterface
     // Every subsequent 5 entries are movie contract attributes
 		int count = 0;
 		System.out.println("");
-		System.out.println("StockSymbol           ActorName    DateOfBirth");
+		System.out.println("---Actor Profile---");
+		System.out.println("StockSymbol---------------ActorName------DateOfBirth");
 		System.out.println(String.format("%11s", temp.get(0))
-			+ String.format("%20s", temp.get(1))
-			+ String.format("%15s", temp.get(2)));
-		System.out.println("---Movie Contracts---");
-		System.out.println("Movie_ID               MovieTitle      Role   Year           Value");
+			+ String.format("%24s", temp.get(1))
+			+ String.format("%17s", temp.get(2)));
+		System.out.println("\n---Movie Contracts---");
+		System.out.println("Movie_ID-----------------MovieTitle------Role---Year-----------Value");
 		for (int i = 3; i<temp.size(); i=i+5) {
 			System.out.println(String.format("%8s", temp.get(i)) // movie_id
-				+ String.format("%25s", temp.get(i+1)) // mtitle
+				+ String.format("%27s", temp.get(i+1)) // mtitle
 				+ String.format("%10s", temp.get(i+2)) // role
 				+ String.format("%7s", (temp.get(i+3)).substring(0, 4)) // year
 				+ String.format("%16s", formatter.format(Integer.parseInt(temp.get(i+4))))); // value
