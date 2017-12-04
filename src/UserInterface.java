@@ -603,6 +603,7 @@ public class UserInterface
 		}
 	}
 	// NOTE TODO
+	// Method to show a stock's price and the relevant actor's profile
 	private void showCurrentStockPrice()
 	{
 		System.out.println("Which stock would you like to see the actor profile for?");
@@ -612,16 +613,32 @@ public class UserInterface
 		for(String symbol: stockSymbols)
 		{
 				System.out.println(String.format("%11s", symbol)
-							+ String.format("%11s", formatter.format(stocks.get(symbol))));
+					+ String.format("%11s", formatter.format(stocks.get(symbol))));
 		}
-		//read in stock to get actor profile for
+		//read in stocksymbol to get actor profile for
 		System.out.println();
 		System.out.print("Input(all caps): ");
 		String stockToGetAct = reader.nextLine();
 
-		dbAdapter.getActorProfile(stockToGetAct);
-		
-
+		ArrayList<String> temp = dbAdapter.getActorProfile(stockToGetAct);
+		// First 3 entries are stocksymbol, actor name, and dob
+    // Every subsequent 5 entries are movie contract attributes
+		int count = 0;
+		System.out.println("");
+		System.out.println("StockSymbol           ActorName    DateOfBirth");
+		System.out.println(String.format("%11s", temp.get(0))
+			+ String.format("%20s", temp.get(1))
+			+ String.format("%15s", temp.get(2)));
+		System.out.println("---Movie Contracts---");
+		System.out.println("Movie_ID               MovieTitle      Role   Year           Value");
+		for (int i = 3; i<temp.size(); i=i+5) {
+			System.out.println(String.format("%8s", temp.get(i)) // movie_id
+				+ String.format("%25s", temp.get(i+1)) // mtitle
+				+ String.format("%10s", temp.get(i+2)) // role
+				+ String.format("%7s", (temp.get(i+3)).substring(0, 4)) // year
+				+ String.format("%16s", formatter.format(Integer.parseInt(temp.get(i+4))))); // value
+		}
+		System.out.println("");
 	}
 	//movie info user interface
 	private void showMovieInfo()
