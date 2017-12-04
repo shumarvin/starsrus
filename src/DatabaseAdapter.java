@@ -2,6 +2,7 @@
 import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseAdapter
 {
@@ -822,6 +823,8 @@ public class DatabaseAdapter
         float stocksBalance = -1;
         try
         {
+            connect(0);
+
             sql = "SELECT * FROM TracksStocks T, OwnsStock S "
                 + "WHERE S.username=? AND S.s_aid=T.s_aid AND T.stocksymbol=? "
                 + "AND T.buyprice=?";
@@ -914,6 +917,71 @@ public class DatabaseAdapter
         }
         return hasStock;
     }
+
+
+    /*
+        Method to get a trader's stock transactions.
+        @return movies all the movie names in an ArrayList
+    */
+    public ArrayList<Transaction> getTransactions(Account account)
+    {
+      String sql = "";
+      String username = account.getUsername();
+      int s_aid = -1;
+      ArrayList<Transaction> TransactionsAList = new ArrayList<Transaction>();
+      try
+      {
+          connect(0);
+
+          // First get s_aid using account's username.
+          sql = "SELECT * FROM OwnsStock S WHERE S.username=?";
+          prepstmt = conn.prepareStatement(sql);
+          prepstmt.setString(1, username);
+          rs = prepstmt.executeQuery();
+          while (rs.next())
+          {
+              s_aid = rs.getInt("s_aid");
+          }
+
+          // Get all transactions that match each transNum in transNumAList
+          sql = "SELECT * FROM Transactions T "
+              + "WHERE T.transNum IN (SELECT S.transNum FROM StockTransactions S WHERE S.s_aid=?)";
+          prepstmt = conn.prepareStatement(sql);
+          prepstmt.setInt(1, s_aid);
+          rs = prepstmt.executeQuery();
+          while(rs.next())
+          {
+              TransactionsAList.add(new Transaction(
+                rs.getInt("transNum"),
+                rs.getDate("transDate"),
+                rs.getFloat("marketIn"),
+                rs.getFloat("marketOut"),
+                rs.getFloat("sharesIn"),
+                rs.getFloat("sharesOut"),
+                rs.getString("stocksymbol"),
+                rs.getFloat("profit")));
+          }
+      }
+      catch(SQLException se)
+      {
+          se.printStackTrace();
+          return null;
+      }
+      finally
+      {
+          close();
+      }
+
+      return TransactionsAList;
+    }
+    // Method to get actor profile and movie contracts for that actor NOTE TODO
+    public void getActorProfile(String stocksymbol)
+    {
+        String sql = "";
+        return; 
+    }
+
+
     /*
         Gets all movies names from the movie database
         @return movies all the movie names in an ArrayList
