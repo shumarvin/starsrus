@@ -457,7 +457,6 @@ public class UserInterface
 			Set<String> stockSymbols = stocks.keySet();
       for(String symbol: stockSymbols)
       {
-          // System.out.println("     "+ symbol + "        "+ formatter.format(stocks.get(symbol)));
 					System.out.println(String.format("%11s", symbol)
 								+ String.format("%11s", formatter.format(stocks.get(symbol))));
       }
@@ -584,10 +583,45 @@ public class UserInterface
 	private void showStockTransactions()
 	{
 		System.out.println("show stock transactions");
+		ArrayList<Transaction> tlist = dbAdapter.getTransactions(account);
+
+		System.out.println();
+		System.out.println("---Here are your stock transactions---");
+		System.out.println("TransNum    TransDate    MarketIn    MarketOut"
+		 + "    SharesIn    SharesOut    StockSymbol    Profit");
+		for(Transaction trans : tlist)
+		{
+			System.out.println(String.format("%8s", trans.gettransNum())
+						+ String.format("%13s", trans.gettransDate())
+						+ String.format("%12s", formatter.format(trans.getmarketIn()))
+						+ String.format("%13s", formatter.format(trans.getmarketOut()))
+						+ String.format("%12s", trans.getsharesIn())
+						+ String.format("%13s", trans.getsharesOut())
+						+ String.format("%15s", trans.getstocksymbol())
+						+ String.format("%10s", formatter.format(trans.getprofit()))
+						);
+		}
 	}
+	// NOTE TODO
 	private void showCurrentStockPrice()
 	{
-		System.out.println("");
+		System.out.println("Which stock would you like to see the actor profile for?");
+		System.out.println("StockSymbol      Price");
+		HashMap<String,Float> stocks = dbAdapter.getStocks();
+		Set<String> stockSymbols = stocks.keySet();
+		for(String symbol: stockSymbols)
+		{
+				System.out.println(String.format("%11s", symbol)
+							+ String.format("%11s", formatter.format(stocks.get(symbol))));
+		}
+		//read in stock to get actor profile for
+		System.out.println();
+		System.out.print("Input(all caps): ");
+		String stockToGetAct = reader.nextLine();
+
+		dbAdapter.getActorProfile(stockToGetAct);
+		
+
 	}
 	//movie info user interface
 	private void showMovieInfo()
