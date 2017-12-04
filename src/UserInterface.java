@@ -223,7 +223,11 @@ public class UserInterface
 			System.out.println("4. Generate Government Drug & Tax Evasion Report(DTER)");
 			System.out.println("5. Generate Customer Report");
 			System.out.println("6. Delete Transactions");
-			System.out.println("7. Log out");
+			System.out.println("7. Open the Market");
+			System.out.println("8. Close the Market");
+			System.out.println("9. Set New Stock Price");
+			System.out.println("10. Set date");
+			System.out.println("11. Log out");
 			System.out.println();
 			System.out.print("Input: ");
 			//check for non-int input
@@ -238,7 +242,7 @@ public class UserInterface
 			{
 				int choice = reader.nextInt();
 				//handle invalid input
-				if(choice < 1 || choice > 9)
+				if(choice < 1 || choice > 11)
 				{
 					System.out.println("Invalid input. Please choose one of the 7 options below.");
 					continue;
@@ -257,6 +261,14 @@ public class UserInterface
 					case 5: showCustomerReport();
 							break;
 					case 6: showDeleteTransactions();
+							break;
+					case 7: showOpenMarket();
+							break;
+					case 8: showCloseMarket();
+							break;
+					case 9: showSetNewStockPrice();
+							break;
+					case 10: showSetDate();
 							break;
 					default: quit();
 				}
@@ -293,7 +305,22 @@ public class UserInterface
 			System.out.println("Error on deleting transactions");
 		}
 	}
-
+	private void showOpenMarket()
+	{
+		System.out.println("show open market");
+	}
+	private void showCloseMarket()
+	{
+		System.out.println("show close market");
+	}
+	private void showSetNewStockPrice()
+	{
+		System.out.println("Show set new stock price");
+	}
+	private void showSetDate()
+	{
+		System.out.println("show set date");
+	}
 	//trader user interface
 	private void showTraderInterface()
 	{
