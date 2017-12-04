@@ -975,10 +975,52 @@ public class DatabaseAdapter
       return TransactionsAList;
     }
     // Method to get actor profile and movie contracts for that actor NOTE TODO
-    public void getActorProfile(String stocksymbol)
+    public ArrayList<String> getActorProfile(String stocksymbol)
     {
         String sql = "";
-        return; 
+        float value = -1;
+        ArrayList<String> output = new ArrayList<String>();
+        try
+        {
+            connect(0);
+
+            sql = "SELECT * FROM ActorProfile WHERE stocksymbol=?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, stocksymbol);
+            rs = prepstmt.executeQuery();
+            // Should only return one actor profile IMPORTANT NOTE
+            // First 3 entries are stocksymbol, actor name, and dob
+            // Every subsequent 5 entries are movie contracts
+            while(rs.next())
+            {
+              output.add(rs.getString("stocksymbol"));
+              output.add(rs.getString("aname"));
+              output.add(String.format("%s", rs.getDate("dob")));
+            }
+
+            sql = "SELECT * FROM MovieContract WHERE stocksymbol=?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, stocksymbol);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+            {
+              output.add(rs.getString("movie_id"));
+              output.add(rs.getString("mtitle"));
+              output.add(rs.getString("role"));
+              output.add(rs.getString("prodyear"));
+              output.add(rs.getString("value"));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return null;
+        }
+        finally
+        {
+            close();
+        }
+        return output;
     }
 
 
