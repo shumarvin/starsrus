@@ -1314,12 +1314,54 @@ public class DatabaseAdapter
       }
       return customers;
     }
+
+    /*
+        Queries the database to find out if the
+        customer with the specified username exists
+        @return true if customer exists, false otherwise
+    */
+    public boolean hasCustomer(String username)
+    {
+        String sql = "";
+        boolean hasCustomer = false;
+        try
+        {
+            connect(0);
+
+            //sql query
+            sql = "SELECT username FROM Customer WHERE username = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1,username);
+            rs = prepstmt.executeQuery();
+
+            //if there is a result, then username was valid
+            if(rs.next())
+                hasCustomer = true;
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return hasCustomer;
+    }
+    /*
+        Gets all customers who have bought/traded at least 1000 shares
+        @return activeCustomers an ArrayList of customers who fit the
+                criteria above
+    */
     public ArrayList<String> getAllActiveCustomers(){
       ArrayList<String> activeCustomers = new ArrayList<String>();
       String sql = "";
       try
       {
         connect(0);
+
+        //sql query
         sql = "SELECT TempThree.username, TempThree.SumShares, C.firstName, C.lastName, C.email "
             + "FROM   (SELECT  TempTwo.username, TempTwo.SumShares "
             + "        FROM    (SELECT  Temp.username, SUM(Temp.sharesIn+Temp.sharesOut) AS SumShares "
@@ -1356,35 +1398,38 @@ public class DatabaseAdapter
       }
       return activeCustomers;
     }
-    public ArrayList<String> getAllCustomers(){
-      ArrayList<String> customerAccounts = new ArrayList<String>();
-      String sql = "";
-      try
-      {
-        connect(0);
-        sql = "SELECT * FROM Customer;";
-        prepstmt = conn.prepareStatement(sql);
-        rs = prepstmt.executeQuery();
-        while(rs.next())
-        {
-          // Every 6 entries in ArrayList is one Customer
-          customerAccounts.add(rs.getString("username"));
-          customerAccounts.add(rs.getString("firstName"));
-          customerAccounts.add(rs.getString("lastName"));
-          customerAccounts.add(rs.getString("state"));
-          customerAccounts.add(rs.getString("phone"));
-          customerAccounts.add(rs.getString("email"));
-        }
-      }
-      catch(SQLException se)
-      {
-        se.printStackTrace();
-        return null;
-      }
-      finally
-      {
-        close();
-      }
+    /*
+        Gets all customers
+        @return customerAccounts an ArrayList of all 
+                customer accounts
+    */
+    public ArrayList<Account> getAllCustomers()
+    {
+          ArrayList<Account> customerAccounts = new ArrayList<Account>();
+          String sql = "";
+          try
+          {
+            connect(0);
+
+            //sql query
+            sql = "SELECT * FROM Customer;";
+            prepstmt = conn.prepareStatement(sql);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+            {
+                Account currentAccount = new Account(rs.getString("username"), "", rs.getString("firstName"), rs.getString("lastName"), "", rs.getString("phone"),rs.getString("email"), -1);
+                customerAccounts.add(currentAccount);
+            }
+          }
+          catch(SQLException se)
+          {
+            se.printStackTrace();
+            return null;
+          }
+          finally
+          {
+            close();
+          }
       return customerAccounts;
     }
     public ArrayList<String> CustomerReport(String username)
@@ -1395,6 +1440,7 @@ public class DatabaseAdapter
     }
     /*
         Adds interest to all the market accounts
+        @return true if successful, false otherwise
     */
     public boolean addInterest()
     {
