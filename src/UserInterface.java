@@ -28,16 +28,15 @@ public class UserInterface
 	//starts program with title and login screen
 	public void start()
 	{
-		System.out.println("");
-		System.out.println("*************************");
-		System.out.println("Welcome to Stars'R'Us!");
-		System.out.println("*************************");
-		System.out.println("Current date: " + dbAdapter.getCurrentDate());
-
-
 		//start login process here
 		while(true)
 		{
+			System.out.println("");
+			System.out.println("*************************");
+			System.out.println("Welcome to Stars'R'Us!");
+			System.out.println("*************************");
+			System.out.println("Current date: " + dbAdapter.getCurrentDate());
+
 			System.out.println();
 			System.out.println("---|Please choose one of the following:");
 			System.out.println("---|1. Log in (Customer)");
@@ -68,11 +67,11 @@ public class UserInterface
 				switch(choice)
 				{
 					case 1: doCustomerLogin();
-							break;
+							continue;
 					case 2: doManagerLogin();
-							break;
+							continue;
 					case 3: doCreateAccount();
-							break;
+							continue;
 					default: quit();
 				}
 			}
@@ -274,7 +273,7 @@ public class UserInterface
 							break;
 					case 10: showSetNewDate();
 							break;
-					default: quit();
+					default: return;
 				}
 			}
 		}
@@ -561,7 +560,7 @@ public class UserInterface
 								break;
 						case 8: showMovieInfo();
 								break;
-						default: quit();
+						default: return;
 					}
 				}
 				else
@@ -581,7 +580,7 @@ public class UserInterface
 								break;
 						case 6: showMovieInfo();
 								break;
-						default: quit();
+						default: return;
 					}
 				}
 				
