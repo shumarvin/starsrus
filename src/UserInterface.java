@@ -35,11 +35,11 @@ public class UserInterface
 		while(true)
 		{
 			System.out.println();
-			System.out.println("Please choose one of the following:");
-			System.out.println("1. Log in (Customer)");
-			System.out.println("2. Log in (Manager)");
-			System.out.println("3. Create an Account");
-			System.out.println("4. Quit");
+			System.out.println("---|Please choose one of the following:");
+			System.out.println("---|1. Log in (Customer)");
+			System.out.println("---|2. Log in (Manager)");
+			System.out.println("---|3. Create an Account");
+			System.out.println("---|4. Quit");
 			System.out.println();
 			System.out.print("Input: ");
 			//make sure input is int
@@ -146,9 +146,9 @@ public class UserInterface
 		System.out.println("-------------------------");
 
 		//Ask for what account user wants to create
-		System.out.println("Please choose account type:");
-		System.out.println("1. Create (Customer) Account");
-		System.out.println("2. Create (Manager)  Account");
+		System.out.println("---|Please choose account type:");
+		System.out.println("---|1. Create (Customer) Account");
+		System.out.println("---|2. Create (Manager)  Account");
 		System.out.println();
 		System.out.print("Input: ");
 		int choice = reader.nextInt();
@@ -215,19 +215,19 @@ public class UserInterface
 		System.out.println("Welcome " + account.getUsername() + "!");
 		System.out.println();
 		while(true){
-			System.out.println("What would you like to do today?");
+			System.out.println("\n---|What would you like to do today?");
 			System.out.println();
-			System.out.println("1. Add interest");
-			System.out.println("2. Generate Monthly Statement");
-			System.out.println("3. List Active Customers");
-			System.out.println("4. Generate Government Drug & Tax Evasion Report(DTER)");
-			System.out.println("5. Generate Customer Report");
-			System.out.println("6. Delete Transactions");
-			System.out.println("7. Open the Market");
-			System.out.println("8. Close the Market");
-			System.out.println("9. Set New Stock Price");
-			System.out.println("10. Set date");
-			System.out.println("11. Log out");
+			System.out.println("---|1. Add interest");
+			System.out.println("---|2. Generate Monthly Statement");
+			System.out.println("---|3. List Active Customers");
+			System.out.println("---|4. Generate Government Drug & Tax Evasion Report(DTER)");
+			System.out.println("---|5. Generate Customer Report");
+			System.out.println("---|6. Delete Transactions");
+			System.out.println("---|7. Open the Market");
+			System.out.println("---|8. Close the Market");
+			System.out.println("---|9. Set New Stock Price");
+			System.out.println("---|10. Set date");
+			System.out.println("---|11. Log out");
 			System.out.println();
 			System.out.print("Input: ");
 			//check for non-int input
@@ -241,6 +241,7 @@ public class UserInterface
 			else
 			{
 				int choice = reader.nextInt();
+				reader.nextLine();
 				//handle invalid input
 				if(choice < 1 || choice > 11)
 				{
@@ -313,9 +314,48 @@ public class UserInterface
 	{
 		System.out.println("show close market");
 	}
-	private void showSetNewStockPrice()
+	private void showSetNewStockPrice() // NOTE TODO HERE
 	{
-		System.out.println("Show set new stock price");
+		float newprice = -1;
+		System.out.println("\nWhich stock would you like to change?");
+		System.out.println();
+		System.out.println("StockSymbol------Price");
+		HashMap<String,Float> stocks = dbAdapter.getStocks();
+		Set<String> stockSymbols = stocks.keySet();
+		for(String symbol: stockSymbols)
+		{
+				System.out.println(String.format("%11s", symbol)
+							+ String.format("%11s", formatter.format(stocks.get(symbol))));
+		}
+		//read in which stock to buy
+		System.out.println();
+		System.out.print("Input(all caps): ");
+		String stockToChange = reader.nextLine();
+		//read in what the new price should be
+		while(true)
+		{
+				System.out.println("What should the new price be?");
+				System.out.print("\nInput: ");
+				//check for non-float input
+        if(!reader.hasNextFloat())
+				{
+					System.out.println("Invalid input. Please try again.");
+					reader.nextLine();
+					continue;
+				}
+				else
+				{
+					newprice = reader.nextFloat();
+        	reader.nextLine();
+        	break;
+				}
+		}
+
+		if (dbAdapter.changeStockPrice(stockToChange, newprice) == true)
+		{
+				System.out.println("Changed stock " + stockToChange + " price to "
+					+ formatter.format(newprice) + ".");
+		}
 	}
 	private void showSetDate()
 	{
@@ -337,17 +377,17 @@ public class UserInterface
 		*/
 		while(true)
 		{
-			System.out.println("What would you like to do today?");
+			System.out.println("\n---|What would you like to do today?");
 			System.out.println();
-			System.out.println("1. Deposit into Market Account");
-			System.out.println("2. Withdraw from Market Account");
-			System.out.println("3. Buy Stocks");
-			System.out.println("4. Sell Stocks");
-			System.out.println("5. Show Market Account Balance");
-			System.out.println("6. Show Stock Transaction History");
-			System.out.println("7. List Current Stock Price and Actor Profile");
-			System.out.println("8. List Movie Information");
-			System.out.println("9. Log out");
+			System.out.println("---|1. Deposit into Market Account");
+			System.out.println("---|2. Withdraw from Market Account");
+			System.out.println("---|3. Buy Stocks");
+			System.out.println("---|4. Sell Stocks");
+			System.out.println("---|5. Show Market Account Balance");
+			System.out.println("---|6. Show Stock Transaction History");
+			System.out.println("---|7. List Current Stock Price and Actor Profile");
+			System.out.println("---|8. List Movie Information");
+			System.out.println("---|9. Log out");
 			System.out.println();
 			System.out.print("Input: ");
 			//check for non-int input
@@ -616,19 +656,18 @@ public class UserInterface
 	}
 	private void showStockTransactions()
 	{
-		System.out.println("show stock transactions");
 		ArrayList<Transaction> tlist = dbAdapter.getTransactions(account);
 
 		System.out.println();
 		System.out.println("---Here are your stock transactions---");
-		System.out.println("TransNum----TransDate----MarketIn----MarketOut"
+		System.out.println("TransNum----TransDate-----MarketIn-----MarketOut"
 		 + "----SharesIn----SharesOut----StockSymbol----Profit");
 		for(Transaction trans : tlist)
 		{
 			System.out.println(String.format("%8s", trans.gettransNum())
 						+ String.format("%13s", trans.gettransDate())
-						+ String.format("%12s", formatter.format(trans.getmarketIn()))
-						+ String.format("%13s", formatter.format(trans.getmarketOut()))
+						+ String.format("%13s", formatter.format(trans.getmarketIn()))
+						+ String.format("%14s", formatter.format(trans.getmarketOut()))
 						+ String.format("%12s", trans.getsharesIn())
 						+ String.format("%13s", trans.getsharesOut())
 						+ String.format("%15s", trans.getstocksymbol())
