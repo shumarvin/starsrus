@@ -315,7 +315,21 @@ public class UserInterface
 	}
 	private void showGovTaxReport()
 	{
-		System.out.println("Generate Government Tax Report");
+		System.out.println("\nGenerate Government Tax Report");
+		System.out.println("Showing customers who earned more than $10,0000 in the month.\n");
+		ArrayList<String> customers = dbAdapter.getGovtTaxReport();
+		System.out.println("-----Username-----AmountEarned"
+			+ "-----FirstName-----LastName-------------------Email---State");
+		for (int i = 0; i < customers.size(); i=i+6)
+		{
+			System.out.println(String.format("%13s", customers.get(i)) // username
+				+ String.format("%17s", customers.get(i+1)) // SumProfit
+				+ String.format("%14s", customers.get(i+2)) // firstName
+				+ String.format("%13s", customers.get(i+3)) // lastName
+				+ String.format("%24s", customers.get(i+4)) // email
+				+ String.format("%8s", customers.get(i+5)) // email
+				);
+		}
 	}
 	private void showCustomerReport()
 	{
@@ -827,16 +841,16 @@ public class UserInterface
 
 		System.out.println();
 		System.out.println("---Here are your stock transactions---");
-		System.out.println("TransNum----TransDate-----MarketIn-----MarketOut"
-		 + "----SharesIn----SharesOut----StockSymbol-------Profit");
+		System.out.println("TransNum----TransDate------Deposit-----Withdrawal"
+		 + "----SharesBought----SharesSold----StockSymbol-------Profit");
 		for(Transaction trans : tlist)
 		{
 			System.out.println(String.format("%8s", trans.gettransNum())
 						+ String.format("%13s", trans.gettransDate())
 						+ String.format("%13s", formatter.format(trans.getmarketIn()))
-						+ String.format("%14s", formatter.format(trans.getmarketOut()))
-						+ String.format("%12s", trans.getsharesIn())
-						+ String.format("%13s", trans.getsharesOut())
+						+ String.format("%15s", formatter.format(trans.getmarketOut()))
+						+ String.format("%16s", trans.getsharesIn())
+						+ String.format("%14s", trans.getsharesOut())
 						+ String.format("%15s", trans.getstocksymbol())
 						+ String.format("%13s", formatter.format(trans.getprofit()))
 						);
