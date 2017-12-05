@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 public class DatabaseAdapter
 {
@@ -1228,7 +1229,16 @@ public class DatabaseAdapter
         }
         return reviews;
     }
-    // Manager methods
+
+    /*
+        Manager Methods
+    */
+
+
+    /*
+        Delete all transactions in the database
+        @return true if successful, false otherwise
+    */
     public boolean deleteTransactions()
     {
       String sql = "";
@@ -1255,6 +1265,41 @@ public class DatabaseAdapter
       }
       return true;
     }
+    /*
+        Set date to the specified date
+        @date date the new date to set to
+        @return true if successuful, false otherwise
+    */
+    public boolean setDate(LocalDate date)
+    {
+        String sql = "";
+
+        try
+        {
+            connect(0);
+
+            //sql query
+            sql = "UPDATE Date SET currentDate = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setObject(1, date);
+            prepstmt.executeUpdate();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    private void advanceDate()
+    {
+        //stub
+    }
+
     public boolean changeStockPrice(String stocksymbol, float newprice)
     {
       String sql = "";

@@ -1,8 +1,12 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.io.Console;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class UserInterface
 {
@@ -213,7 +217,6 @@ public class UserInterface
 	{
 		System.out.println();
 		System.out.println("Welcome " + account.getUsername() + "!");
-		System.out.println();
 		while(true){
 			System.out.println("\n---|What would you like to do today?");
 			System.out.println();
@@ -269,7 +272,7 @@ public class UserInterface
 							break;
 					case 9: showSetNewStockPrice();
 							break;
-					case 10: showSetDate();
+					case 10: showSetNewDate();
 							break;
 					default: quit();
 				}
@@ -357,9 +360,45 @@ public class UserInterface
 					+ formatter.format(newprice) + ".");
 		}
 	}
-	private void showSetDate()
+	//set new date user interface
+	private void showSetNewDate()
 	{
-		System.out.println("show set date");
+		while(true)
+		{
+			//prompt user to set new date
+			System.out.println("Which new date would you like to set?");
+			System.out.println("Current date: " + dbAdapter.getCurrentDate());
+			System.out.println();
+
+			//read user input
+			System.out.print("New Date(yyyy-mm-dd): ");
+			String userDate = reader.nextLine();
+			try
+			{
+				//update database
+				LocalDate newDate = LocalDate.parse(userDate);
+				if(dbAdapter.setDate(newDate));
+				{
+					System.out.println("New date is now: "+ newDate);
+					System.out.println();
+				}
+				
+				else
+				{
+					System.out.println("Error occurred. Please see above for details");
+					System.out.println();
+				}
+				break;
+			}
+			catch (DateTimeParseException e)
+			{
+				//if invalid date, prompt user to try again
+				System.out.println("Invalid date. Please try again.");
+				System.out.println();
+				continue;
+			}
+		}
+
 	}
 	//trader user interface
 	private void showTraderInterface()
@@ -528,11 +567,11 @@ public class UserInterface
 			System.out.println("StockSymbol------Price");
 			HashMap<String,Float> stocks = dbAdapter.getStocks();
 			Set<String> stockSymbols = stocks.keySet();
-      for(String symbol: stockSymbols)
-      {
-					System.out.println(String.format("%11s", symbol)
-								+ String.format("%11s", formatter.format(stocks.get(symbol))));
-      }
+	        for(String symbol: stockSymbols)
+	        {
+	        	System.out.println(String.format("%11s", symbol)
+					+ String.format("%11s", formatter.format(stocks.get(symbol))));
+	        }
       //read in which stock to buy
       System.out.println();
       System.out.print("Input(all caps): ");
