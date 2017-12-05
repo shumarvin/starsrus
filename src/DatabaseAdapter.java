@@ -1251,7 +1251,7 @@ public class DatabaseAdapter
 
         sql = "ALTER TABLE Transactions AUTO_INCREMENT = 1;";
         prepstmt = conn.prepareStatement(sql);
-        prepstmt.executeUpdate(); 
+        prepstmt.executeUpdate();
       }
       catch(SQLException se)
       {
@@ -1298,5 +1298,29 @@ public class DatabaseAdapter
     private void advanceDate()
     {
         //stub
+    }
+
+    public boolean changeStockPrice(String stocksymbol, float newprice)
+    {
+      String sql = "";
+      try
+      {
+        connect(0);
+        sql = "UPDATE Stock SET currentprice=? WHERE stocksymbol=?;";
+        prepstmt = conn.prepareStatement(sql);
+        prepstmt.setFloat(1, newprice);
+        prepstmt.setString(2, stocksymbol);
+        prepstmt.executeUpdate();
+      }
+      catch(SQLException se)
+      {
+        se.printStackTrace();
+        return false;
+      }
+      finally
+      {
+        close();
+      }
+      return true;
     }
 }
