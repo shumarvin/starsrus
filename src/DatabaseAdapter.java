@@ -413,6 +413,10 @@ public class DatabaseAdapter
         }
         return date;
     }
+    /*
+        Checks whether market is open or not
+        @return true if open, false if closed
+    */
     public boolean isMarketOpen()
     {
         String sql = "";
@@ -539,6 +543,14 @@ public class DatabaseAdapter
         Date date = getCurrentDate();
         float commission = 0;
 
+        //check to make sure customer isn't buying
+        //negative amount of shares
+        if(numShares < 0)
+        {
+            System.out.println("Error! Cannot buy negative shares!");
+            System.out.println();
+            return false;
+        }
         try
         {
             connect(0);
@@ -1534,13 +1546,15 @@ public class DatabaseAdapter
     /*
         Closes the market so no buying/selling may occur
         Also adds each customer's current market balance to
-        his/her running balance for the current month
+        his/her running balance for the current month and
+        updates each stock's closing price
         @return true if successful, false otherwise
     */
     public boolean closeMarket()
     {
         String closeSql = "";
         String addBalanceSql = "";
+        String updateClosingPriceSql = "";
         try
         {
             connect(0);
@@ -1555,6 +1569,9 @@ public class DatabaseAdapter
             //to their running balance for the month
             addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance;";
 
+            //finally, set each stock's closing price
+            updateClosingPriceSql = "UPDATE Stock SET closingprice = currentprice;";
+
             try
             {
                 //close market
@@ -1565,6 +1582,9 @@ public class DatabaseAdapter
                 stmt = conn.createStatement();
                 stmt.executeUpdate(addBalanceSql);
 
+                stmt = conn.createStatement();
+                stmt.executeUpdate(updateClosingPriceSql);
+                
                 conn.commit();
                 conn.setAutoCommit(true);
             }
@@ -1589,22 +1609,42 @@ public class DatabaseAdapter
     }
     /*
         Set date to the specified date
+        Market will be open on the specified date
         @date date the new date to set to
         @return true if successuful, false otherwise
     */
     public boolean setDate(LocalDate date)
     {
-        String sql = "";
+        String timeIntervalSql = "";
+        Date startDate = getCurrentDate();
+        int timeInterval = 0;
 
         try
         {
             connect(0);
 
-            //sql query
-            sql = "UPDATE Date SET currentDate = ?;";
-            prepstmt = conn.prepareStatement(sql);
+            //get time interval in between startDate and date
+            timeIntervalSql = "SELECT datediff(?,?) AS 'interval';";
+            prepstmt = conn.prepareStatement(timeIntervalSql);
             prepstmt.setObject(1, date);
-            prepstmt.executeUpdate();
+            prepstmt.setDate(2, startDate);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+                timeInterval = rs.getInt("interval");
+
+            //if market is currently open, close it
+            if(isMarketOpen())
+                closeMarket();
+
+            //open and close the market for each day up till the last one
+            for(int i = 0; i < timeInterval -1; i++)
+            {
+                openMarket();
+                closeMarket();
+            }
+
+            //open the market on the last day
+            openMarket();
         }
         catch(SQLException se)
         {
