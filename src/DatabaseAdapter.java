@@ -543,6 +543,14 @@ public class DatabaseAdapter
         Date date = getCurrentDate();
         float commission = 0;
 
+        //check to make sure customer isn't buying
+        //negative amount of shares
+        if(numShares < 0)
+        {
+            System.out.println("Error! Cannot buy negative shares!");
+            System.out.println();
+            return false;
+        }
         try
         {
             connect(0);
@@ -1496,13 +1504,15 @@ public class DatabaseAdapter
     /*
         Closes the market so no buying/selling may occur
         Also adds each customer's current market balance to
-        his/her running balance for the current month
+        his/her running balance for the current month and
+        updates each stock's closing price
         @return true if successful, false otherwise
     */
     public boolean closeMarket()
     {
         String closeSql = "";
         String addBalanceSql = "";
+        String updateClosingPriceSql = "";
         try
         {
             connect(0);
@@ -1517,6 +1527,9 @@ public class DatabaseAdapter
             //to their running balance for the month
             addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance;";
 
+            //finally, set each stock's closing price
+            updateClosingPriceSql = "UPDATE Stock SET closingprice = currentprice;";
+
             try
             {
                 //close market
@@ -1527,6 +1540,9 @@ public class DatabaseAdapter
                 stmt = conn.createStatement();
                 stmt.executeUpdate(addBalanceSql);
 
+                stmt = conn.createStatement();
+                stmt.executeUpdate(updateClosingPriceSql);
+                
                 conn.commit();
                 conn.setAutoCommit(true);   
             }
