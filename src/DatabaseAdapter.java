@@ -974,7 +974,7 @@ public class DatabaseAdapter
 
       return TransactionsAList;
     }
-    // Method to get actor profile and movie contracts for that actor NOTE TODO
+    // Method to get actor profile and movie contracts for that actor
     public ArrayList<String> getActorProfile(String stocksymbol)
     {
         String sql = "";
@@ -1229,6 +1229,43 @@ public class DatabaseAdapter
         return reviews;
     }
     // Manager methods
+    public ArrayList<String> getAllCustomers(){
+      ArrayList<String> customerAccounts = new ArrayList<String>();
+      String sql = "";
+      try
+      {
+        connect(0);
+        sql = "SELECT * FROM Customer;";
+        prepstmt = conn.prepareStatement(sql);
+        rs = prepstmt.executeQuery();
+        while(rs.next())
+        {
+          // Every 6 entries in ArrayList is one Customer
+          customerAccounts.add(rs.getString("username"));
+          customerAccounts.add(rs.getString("firstName"));
+          customerAccounts.add(rs.getString("lastName"));
+          customerAccounts.add(rs.getString("state"));
+          customerAccounts.add(rs.getString("phone"));
+          customerAccounts.add(rs.getString("email"));
+        }
+      }
+      catch(SQLException se)
+      {
+        se.printStackTrace();
+        return null;
+      }
+      finally
+      {
+        close();
+      }
+      return customerAccounts;
+    }
+    public ArrayList<String> CustomerReport(String username)
+    {
+      ArrayList<String> cReport = new ArrayList<String>();
+      String sql = "";
+      return null;
+    }
     public boolean deleteTransactions()
     {
       String sql = "";

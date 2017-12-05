@@ -295,6 +295,45 @@ public class UserInterface
 	private void showCustomerReport()
 	{
 		System.out.println("Generate Customer Report");
+		//show all customers and their info
+		ArrayList<String> customers = dbAdapter.getAllCustomers();
+		System.out.println("\nChoose a customer username from below");
+		System.out.println("---Customer Profiles---\n");
+		System.out.println("-----Username-----FirstName-----LastName----State"
+			+ "-------Phone-------------------Email");
+		for (int i = 0; i < customers.size(); i=i+6)
+		{
+			System.out.println(String.format("%13s", customers.get(i)) // username
+				+ String.format("%14s", customers.get(i+1)) // firstName
+				+ String.format("%13s", customers.get(i+2)) // lastName
+				+ String.format("%9s", customers.get(i+3)) // state
+				+ String.format("%12s", customers.get(i+4)) // phone
+				+ String.format("%24s", customers.get(i+5)) // email
+				);
+		}
+
+		// Take in user input for a customer's username
+		System.out.println();
+		System.out.print("Input: ");
+		String username = reader.nextLine();
+
+		// Print market balance for that customer
+		Account temp = new Account(username, "", "", "", "", "", "", -1);
+		float mbalance = dbAdapter.getMarketAccountBalance(temp);
+		System.out.println("\nCustomer market account balance = "
+			+ formatter.format(mbalance) + "\n");
+
+		// Print stock balances for that customer
+		System.out.println("Customer's owned stocks:");
+		System.out.println("StockSymbol----SharesOwned----OrigBuyingPrice");
+		ArrayList<OwnedStocks> stocks = dbAdapter.getOwnedStocks(temp);
+		for(OwnedStocks stock : stocks)
+		{
+			System.out.println(String.format("%11s", stock.getStocksymbol())
+						+ String.format("%15s", stock.getSbalance())
+						+ String.format("%19s", formatter.format(stock.getBuyprice())));
+		}
+
 	}
 	private void showDeleteTransactions()
 	{
@@ -314,7 +353,7 @@ public class UserInterface
 	{
 		System.out.println("show close market");
 	}
-	private void showSetNewStockPrice() // NOTE TODO HERE
+	private void showSetNewStockPrice()
 	{
 		float newprice = -1;
 		System.out.println("\nWhich stock would you like to change?");
