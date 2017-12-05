@@ -217,6 +217,7 @@ public class UserInterface
 		System.out.println();
 		System.out.println("Welcome " + account.getUsername() + "!");
 		while(true){
+			System.out.println("Current date: " + dbAdapter.getCurrentDate());
 			System.out.println("\n---|What would you like to do today?");
 			System.out.println();
 			System.out.println("---|1. Add interest");
@@ -488,6 +489,7 @@ public class UserInterface
 			if(isMarketOpen)
 			{
 				System.out.println("The market is open!");
+				System.out.println("Current date: " + dbAdapter.getCurrentDate());
 				System.out.println("\n---|What would you like to do today?");
 				System.out.println();
 				System.out.println("---|1. Deposit into Market Account");
