@@ -3,6 +3,9 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.util.Iterator;
+import java.util.Map;
 
 public class DatabaseAdapter
 {
@@ -573,10 +576,6 @@ public class DatabaseAdapter
 
             try
             {
-                if (conn == null) {
-                  System.out.println("conn is null for some reason...");
-                }
-
                 //first update market account balance
                 prepstmt = conn.prepareStatement(updateSql);
                 prepstmt.setFloat(1, totalPrice);
@@ -1266,6 +1265,117 @@ public class DatabaseAdapter
       String sql = "";
       return null;
     }
+    /*
+        Adds interest to all the market accounts
+    */
+    public boolean addInterest()
+    {
+        String monthlyInterestSql = "";
+        String customerProfitSql = "";
+        String addInterestSql = "";
+        String recordTransactionSql = "";
+        String recordMarketTransactionSql = "";
+        String resetRunningBalanceSql = "";
+        float interestRate = -1;
+        Date date = getCurrentDate();
+        HashMap<Integer, Float> customerInterest = new HashMap<Integer, Float>();
+
+        try
+        {
+            connect(0);
+
+            //first get monthly interest rate
+            monthlyInterestSql = "SELECT monthlyInterest FROM Interest;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(monthlyInterestSql);
+            while(rs.next())
+                interestRate = rs.getFloat("monthlyInterest");
+
+            /*
+                Generate a hashmap associating each customer with the amount
+                he/she will make from the interest. This will be used to 
+                record the transaction
+            */
+            customerProfitSql = "SELECT m_aid, runningbalance FROM OwnsMarket;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(customerProfitSql);
+            while(rs.next())
+            {
+                customerInterest.put(rs.getInt("m_aid"), rs.getFloat("runningbalance") * interestRate);
+
+            }
+
+            try
+            {
+                 //for the rest, do a SQL transaction 
+                conn.setAutoCommit(false);
+
+                //add interest to each of the accounts
+                addInterestSql = "UPDATE OwnsMarket SET mbalance = mbalance + (runningbalance) * ?";
+                prepstmt = conn.prepareStatement(addInterestSql);
+                prepstmt.setFloat(1, interestRate);
+                prepstmt.executeUpdate();
+
+                //record the transaction for each customer
+                Iterator it = customerInterest.entrySet().iterator();
+                while(it.hasNext())
+                {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    int m_aid = (Integer) pair.getKey();
+                    float interest = (Float) pair.getValue();
+
+                    //first insert into Transactions
+                    recordTransactionSql = "INSERT INTO Transactions(transDate, marketIn, profit)" 
+                                        + "VALUES (?,?,?);";
+
+                    //then insert into MarketTransactions
+                    recordMarketTransactionSql = "INSERT INTO MarketTransactions (m_aid,transNum) "
+                                        + "VALUES (?, LAST_INSERT_ID());";
+
+                    //insert into transactions
+                    prepstmt = conn.prepareStatement(recordTransactionSql);
+                    prepstmt.setDate(1, date);
+                    prepstmt.setFloat(2, interest);
+                    prepstmt.setFloat(3, interest);
+                    prepstmt.executeUpdate();
+
+                    //insert into MarketTransactions
+                    prepstmt = conn.prepareStatement(recordMarketTransactionSql);
+                    prepstmt.setInt(1, m_aid);
+                    prepstmt.executeUpdate();
+                }
+
+                //reset running balance
+                resetRunningBalanceSql = "UPDATE OwnsMarket SET runningbalance = 0;";
+                stmt = conn.createStatement();
+                stmt.executeUpdate(resetRunningBalanceSql);
+
+                conn.commit();
+                conn.setAutoCommit(true);            
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
+        Delete all transactions in the database
+        @return true if successful, false otherwise
+    */
     public boolean deleteTransactions()
     {
       String sql = "";
@@ -1292,6 +1402,155 @@ public class DatabaseAdapter
       }
       return true;
     }
+    /*
+        Opens the market for buying and selling
+        @return true if successful, false otherwise
+    */
+    public boolean openMarket()
+    {
+        String openSql = "";
+        String incrementSql = "";
+        String incrementDate = "";
+        Date date = getCurrentDate();
+
+        try
+        {
+            connect(0);
+
+            //use transaction to update date table
+            conn.setAutoCommit(false);
+
+            //first set Open attribute to 1
+            openSql = "UPDATE Date SET Open = 1;";
+
+            //then, increment date by one day
+            incrementSql = "UPDATE Date SET currentDate = (SELECT DATE_ADD(?, INTERVAL 1 DAY));";
+
+            try
+            {
+                //set open attribute to 1
+                stmt = conn.createStatement();
+                stmt.executeUpdate(openSql);
+
+                //increment date by 1
+                prepstmt = conn.prepareStatement(incrementSql);
+                prepstmt.setObject(1, date);
+                prepstmt.executeUpdate();
+
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+             catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
+        Closes the market so no buying/selling may occur
+        Also adds each customer's current market balance to
+        his/her running balance for the current month
+        @return true if successful, false otherwise
+    */
+    public boolean closeMarket()
+    {
+        String closeSql = "";
+        String addBalanceSql = "";
+        try
+        {
+            connect(0);
+
+            //use transaction to update both Date and OwnsMarket 
+            conn.setAutoCommit(false);
+
+            //first, close the market
+            closeSql = "UPDATE Date SET Open = 0;";
+
+            //then, for each customer, add their current market balance
+            //to their running balance for the month
+            addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance;";
+
+            try
+            {
+                //close market
+                stmt = conn.createStatement();
+                stmt.executeUpdate(closeSql);
+
+                //add running balance
+                stmt = conn.createStatement();
+                stmt.executeUpdate(addBalanceSql);
+
+                conn.commit();
+                conn.setAutoCommit(true);   
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
+        Set date to the specified date
+        @date date the new date to set to
+        @return true if successuful, false otherwise
+    */
+    public boolean setDate(LocalDate date)
+    {
+        String sql = "";
+
+        try
+        {
+            connect(0);
+
+            //sql query
+            sql = "UPDATE Date SET currentDate = ?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setObject(1, date);
+            prepstmt.executeUpdate();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
+        Changes a stock's price to a new price
+        @param stocksymbol the stock
+        @param newprice the stock's new price
+        @return true if successful, false otherwise
+    */
     public boolean changeStockPrice(String stocksymbol, float newprice)
     {
       String sql = "";

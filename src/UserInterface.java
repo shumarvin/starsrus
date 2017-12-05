@@ -1,8 +1,12 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.io.Console;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class UserInterface
 {
@@ -213,7 +217,6 @@ public class UserInterface
 	{
 		System.out.println();
 		System.out.println("Welcome " + account.getUsername() + "!");
-		System.out.println();
 		while(true){
 			System.out.println("\n---|What would you like to do today?");
 			System.out.println();
@@ -269,7 +272,7 @@ public class UserInterface
 							break;
 					case 9: showSetNewStockPrice();
 							break;
-					case 10: showSetDate();
+					case 10: showSetNewDate();
 							break;
 					default: quit();
 				}
@@ -278,7 +281,17 @@ public class UserInterface
 	}
 	private void showAddInterest()
 	{
-		System.out.println("Adding interest");
+		System.out.println("Adding interest....");
+		if(dbAdapter.addInterest())
+		{
+			System.out.println("Successfully added interest to all accounts.");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
 	private void showMonthlyStatement()
 	{
@@ -345,15 +358,36 @@ public class UserInterface
 			System.out.println("Error on deleting transactions");
 		}
 	}
+	//open market user interface
 	private void showOpenMarket()
 	{
-		System.out.println("show open market");
+		System.out.println("Opening Market.....");
+		if(dbAdapter.openMarket())
+		{
+			System.out.println("Market Successfully Opened!");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
 	private void showCloseMarket()
 	{
-		System.out.println("show close market");
+		System.out.println("Closing Market.....");
+		if(dbAdapter.closeMarket())
+		{
+			System.out.println("Market Successfully Closed!");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
-	private void showSetNewStockPrice()
+	private void showSetNewStockPrice() 
 	{
 		float newprice = -1;
 		System.out.println("\nWhich stock would you like to change?");
@@ -363,8 +397,8 @@ public class UserInterface
 		Set<String> stockSymbols = stocks.keySet();
 		for(String symbol: stockSymbols)
 		{
-				System.out.println(String.format("%11s", symbol)
-							+ String.format("%11s", formatter.format(stocks.get(symbol))));
+			System.out.println(String.format("%11s", symbol)
+				+ String.format("%11s", formatter.format(stocks.get(symbol))));
 		}
 		//read in which stock to buy
 		System.out.println();
@@ -376,7 +410,7 @@ public class UserInterface
 				System.out.println("What should the new price be?");
 				System.out.print("\nInput: ");
 				//check for non-float input
-        if(!reader.hasNextFloat())
+        		if(!reader.hasNextFloat())
 				{
 					System.out.println("Invalid input. Please try again.");
 					reader.nextLine();
@@ -385,20 +419,55 @@ public class UserInterface
 				else
 				{
 					newprice = reader.nextFloat();
-        	reader.nextLine();
-        	break;
+        			reader.nextLine();
+        			break;
 				}
 		}
 
 		if (dbAdapter.changeStockPrice(stockToChange, newprice) == true)
 		{
-				System.out.println("Changed stock " + stockToChange + " price to "
+			System.out.println("Changed stock " + stockToChange + " price to "
 					+ formatter.format(newprice) + ".");
 		}
 	}
-	private void showSetDate()
+	//set new date user interface
+	private void showSetNewDate()
 	{
-		System.out.println("show set date");
+		while(true)
+		{
+			//prompt user to set new date
+			System.out.println("Which new date would you like to set?");
+			System.out.println("Current date: " + dbAdapter.getCurrentDate());
+			System.out.println();
+
+			//read user input
+			System.out.print("New Date(yyyy-mm-dd): ");
+			String userDate = reader.nextLine();
+			try
+			{
+				//update database
+				LocalDate newDate = LocalDate.parse(userDate);
+				if(dbAdapter.setDate(newDate))
+				{
+					System.out.println("New date is now: "+ newDate);
+					System.out.println();
+				}
+				else
+				{
+					System.out.println("Error occurred. Please see above for details");
+					System.out.println();
+				}
+				break;
+			}
+			catch (DateTimeParseException e)
+			{
+				//if invalid date, prompt user to try again
+				System.out.println("Invalid date. Please try again.");
+				System.out.println();
+				continue;
+			}
+		}
+
 	}
 	//trader user interface
 	private void showTraderInterface()
@@ -567,11 +636,11 @@ public class UserInterface
 			System.out.println("StockSymbol------Price");
 			HashMap<String,Float> stocks = dbAdapter.getStocks();
 			Set<String> stockSymbols = stocks.keySet();
-      for(String symbol: stockSymbols)
-      {
-					System.out.println(String.format("%11s", symbol)
-								+ String.format("%11s", formatter.format(stocks.get(symbol))));
-      }
+	        for(String symbol: stockSymbols)
+	        {
+	        	System.out.println(String.format("%11s", symbol)
+					+ String.format("%11s", formatter.format(stocks.get(symbol))));
+	        }
       //read in which stock to buy
       System.out.println();
       System.out.print("Input(all caps): ");
