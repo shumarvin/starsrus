@@ -309,15 +309,27 @@ public class UserInterface
 			System.out.println("Error on deleting transactions");
 		}
 	}
+	//open market user interface
 	private void showOpenMarket()
 	{
-		System.out.println("show open market");
+		System.out.println("Opening Market.....");
+		if(dbAdapter.openMarket())
+		{
+			System.out.println("Market Successfully Opened!");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
 	private void showCloseMarket()
 	{
 		System.out.println("show close market");
 	}
-	private void showSetNewStockPrice() // NOTE TODO HERE
+	//NOTE TODO HERE
+	private void showSetNewStockPrice() 
 	{
 		float newprice = -1;
 		System.out.println("\nWhich stock would you like to change?");
@@ -327,8 +339,8 @@ public class UserInterface
 		Set<String> stockSymbols = stocks.keySet();
 		for(String symbol: stockSymbols)
 		{
-				System.out.println(String.format("%11s", symbol)
-							+ String.format("%11s", formatter.format(stocks.get(symbol))));
+			System.out.println(String.format("%11s", symbol)
+				+ String.format("%11s", formatter.format(stocks.get(symbol))));
 		}
 		//read in which stock to buy
 		System.out.println();
@@ -340,7 +352,7 @@ public class UserInterface
 				System.out.println("What should the new price be?");
 				System.out.print("\nInput: ");
 				//check for non-float input
-        if(!reader.hasNextFloat())
+        		if(!reader.hasNextFloat())
 				{
 					System.out.println("Invalid input. Please try again.");
 					reader.nextLine();
@@ -349,14 +361,14 @@ public class UserInterface
 				else
 				{
 					newprice = reader.nextFloat();
-        	reader.nextLine();
-        	break;
+        			reader.nextLine();
+        			break;
 				}
 		}
 
 		if (dbAdapter.changeStockPrice(stockToChange, newprice) == true)
 		{
-				System.out.println("Changed stock " + stockToChange + " price to "
+			System.out.println("Changed stock " + stockToChange + " price to "
 					+ formatter.format(newprice) + ".");
 		}
 	}
@@ -377,12 +389,11 @@ public class UserInterface
 			{
 				//update database
 				LocalDate newDate = LocalDate.parse(userDate);
-				if(dbAdapter.setDate(newDate));
+				if(dbAdapter.setDate(newDate))
 				{
 					System.out.println("New date is now: "+ newDate);
 					System.out.println();
 				}
-				
 				else
 				{
 					System.out.println("Error occurred. Please see above for details");
