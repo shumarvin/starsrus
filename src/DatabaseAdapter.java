@@ -574,10 +574,6 @@ public class DatabaseAdapter
 
             try
             {
-                if (conn == null) {
-                  System.out.println("conn is null for some reason...");
-                }
-
                 //first update market account balance
                 prepstmt = conn.prepareStatement(updateSql);
                 prepstmt.setFloat(1, totalPrice);
@@ -1289,18 +1285,27 @@ public class DatabaseAdapter
             //then, increment date by one day
             incrementSql = "UPDATE Date SET currentDate = (SELECT DATE_ADD(?, INTERVAL 1 DAY));";
 
+            try
+            {
+                //set open attribute to 1
+                stmt = conn.createStatement();
+                stmt.executeUpdate(openSql);
 
-            //set open attribute to 1
-            stmt = conn.createStatement();
-            stmt.executeUpdate(openSql);
+                //increment date by 1
+                prepstmt = conn.prepareStatement(incrementSql);
+                prepstmt.setObject(1, date);
+                prepstmt.executeUpdate();
 
-            //increment date by 1
-            prepstmt = conn.prepareStatement(incrementSql);
-            prepstmt.setObject(1, date);
-            prepstmt.executeUpdate();
-
-            conn.commit();
-            conn.setAutoCommit(true);
+                conn.commit();
+                conn.setAutoCommit(true);
+            }
+             catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
         }
         catch(SQLException se)
         {
@@ -1338,16 +1343,26 @@ public class DatabaseAdapter
             addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance "
                             + "WHERE m_aid IN (SELECT M.m_aid FROM (SELECT * FROM OwnsMarket) as M);";
 
-            //close market
-            stmt = conn.createStatement();
-            stmt.executeUpdate(closeSql);
+            try
+            {
+                //close market
+                stmt = conn.createStatement();
+                stmt.executeUpdate(closeSql);
 
-            //add running balance
-            stmt = conn.createStatement();
-            stmt.executeUpdate(addBalanceSql);
+                //add running balance
+                stmt = conn.createStatement();
+                stmt.executeUpdate(addBalanceSql);
 
-            conn.commit();
-            conn.setAutoCommit(true);
+                conn.commit();
+                conn.setAutoCommit(true);   
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
         }
         catch(SQLException se)
         {
