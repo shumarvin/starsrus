@@ -413,6 +413,10 @@ public class DatabaseAdapter
         }
         return date;
     }
+    /*
+        Checks whether market is open or not
+        @return true if open, false if closed
+    */
     public boolean isMarketOpen()
     {
         String sql = "";
@@ -1547,22 +1551,42 @@ public class DatabaseAdapter
     }
     /*
         Set date to the specified date
+        Market will be open on the specified date
         @date date the new date to set to
         @return true if successuful, false otherwise
     */
     public boolean setDate(LocalDate date)
     {
-        String sql = "";
+        String timeIntervalSql = "";
+        Date startDate = getCurrentDate();
+        int timeInterval = 0;
 
         try
         {
             connect(0);
 
-            //sql query
-            sql = "UPDATE Date SET currentDate = ?;";
-            prepstmt = conn.prepareStatement(sql);
+            //get time interval in between startDate and date
+            timeIntervalSql = "SELECT datediff(?,?) AS 'interval';";
+            prepstmt = conn.prepareStatement(timeIntervalSql);
             prepstmt.setObject(1, date);
-            prepstmt.executeUpdate();
+            prepstmt.setDate(2, startDate);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+                timeInterval = rs.getInt("interval");
+
+            //if market is currently open, close it
+            if(isMarketOpen())
+                closeMarket();
+
+            //open and close the market for each day up till the last one
+            for(int i = 0; i < timeInterval -1; i++)
+            {
+                openMarket();
+                closeMarket();
+            }
+
+            //open the market on the last day
+            openMarket();
         }
         catch(SQLException se)
         {
