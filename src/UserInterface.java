@@ -326,7 +326,17 @@ public class UserInterface
 	}
 	private void showCloseMarket()
 	{
-		System.out.println("show close market");
+		System.out.println("Closing Market.....");
+		if(dbAdapter.closeMarket())
+		{
+			System.out.println("Market Successfully Closed!");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
 	//NOTE TODO HERE
 	private void showSetNewStockPrice() 

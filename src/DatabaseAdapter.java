@@ -1304,7 +1304,53 @@ public class DatabaseAdapter
         }
         catch(SQLException se)
         {
-            // Delete failed for some reason
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
+        Closes the market so no buying/selling may occur
+        Also adds each customer's current market balance to
+        his/her running balance for the current month
+        @return true if successful, false otherwise
+    */
+    public boolean closeMarket()
+    {
+        String closeSql = "";
+        String addBalanceSql = "";
+        try
+        {
+            connect(0);
+
+            //use transaction to update both Date and OwnsMarket 
+            conn.setAutoCommit(false);
+
+            //first, close the market
+            closeSql = "UPDATE Date SET Open = 0;";
+
+            //then, for each customer, add their current market balance
+            //to their running balance for the month
+            addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance "
+                            + "WHERE m_aid IN (SELECT M.m_aid FROM (SELECT * FROM OwnsMarket) as M);";
+
+            //close market
+            stmt = conn.createStatement();
+            stmt.executeUpdate(closeSql);
+
+            //add running balance
+            stmt = conn.createStatement();
+            stmt.executeUpdate(addBalanceSql);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        }
+        catch(SQLException se)
+        {
             se.printStackTrace();
             return false;
         }
@@ -1344,7 +1390,12 @@ public class DatabaseAdapter
         }
         return true;
     }
-
+    /*
+        Changes a stock's price to a new price
+        @param stocksymbol the stock
+        @param newprice the stock's new price
+        @return true if successful, false otherwise
+    */
     public boolean changeStockPrice(String stocksymbol, float newprice)
     {
       String sql = "";
