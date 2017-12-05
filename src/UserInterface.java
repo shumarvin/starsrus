@@ -293,10 +293,38 @@ public class UserInterface
 			System.out.println();
 		}
 	}
+	//show monthly statement user interface
 	private void showMonthlyStatement()
 	{
-		System.out.println("Monthly Statement");
+		while(true)
+		{
+			//show all customers and prompt user to select one 
+			System.out.println("Which customer would you like to generate a monthly statement for?");
+			System.out.println();
+			ArrayList<Account> customers = dbAdapter.getAllCustomers();
+			for(Account customer: customers)
+			{
+				System.out.println(customer.getUsername());
+			}
+			System.out.println();
+
+			//read user input
+			System.out.print("Input: ");
+			String user = reader.nextLine();
+			if(dbAdapter.hasCustomer(user))
+			{
+				System.out.println("That customer exists");
+				break;
+			}
+			else
+			{
+				System.out.println("Error! That customer doesn't exist.");
+				System.out.println();
+				continue;
+			}
+		}
 	}
+	//show active custoers user interface
 	private void showListActiveCustomers()
 	{
 		System.out.println("\nShowing customers who have traded >= 1,000 shares.\n");
@@ -317,23 +345,24 @@ public class UserInterface
 	{
 		System.out.println("Generate Government Tax Report");
 	}
+	//show customer report user interface
 	private void showCustomerReport()
 	{
 		System.out.println("Generate Customer Report");
 		//show all customers and their info
-		ArrayList<String> customers = dbAdapter.getAllCustomers();
+		ArrayList<Account> customers = dbAdapter.getAllCustomers();
 		System.out.println("\nChoose a customer username from below");
 		System.out.println("---Customer Profiles---\n");
 		System.out.println("-----Username-----FirstName-----LastName----State"
 			+ "-------Phone-------------------Email");
-		for (int i = 0; i < customers.size(); i=i+6)
+		for (Account customer: customers)
 		{
-			System.out.println(String.format("%13s", customers.get(i)) // username
-				+ String.format("%14s", customers.get(i+1)) // firstName
-				+ String.format("%13s", customers.get(i+2)) // lastName
-				+ String.format("%9s", customers.get(i+3)) // state
-				+ String.format("%12s", customers.get(i+4)) // phone
-				+ String.format("%24s", customers.get(i+5)) // email
+			System.out.println(String.format("%13s", customer.getUsername()) // username
+				+ String.format("%14s", customer.getFirstName()) // firstName
+				+ String.format("%13s", customer.getLastName()) // lastName
+				+ String.format("%9s", customer.getState()) // state
+				+ String.format("%12s", customer.getPhone()) // phone
+				+ String.format("%24s", customer.getEmail()) // email
 				);
 		}
 
