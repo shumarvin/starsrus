@@ -1270,6 +1270,50 @@ public class DatabaseAdapter
         return reviews;
     }
     // Manager methods
+    public ArrayList<String> getGovtTaxReport()
+    {
+      ArrayList<String> customers = new ArrayList<String>();
+      String sql = "";
+      try
+      {
+        connect(0);
+        sql = "SELECT TempThree.username, TempThree.SumProfit, C.firstName, C.lastName, C.email, C.state "
+            + "FROM   (SELECT  TempTwo.username, TempTwo.SumProfit "
+            + "        FROM    (SELECT  Temp.username, SUM(Temp.profit) AS SumProfit "
+            + "                 FROM    (SELECT Os.username, Os.s_aid, T.transNum, T.profit "
+            + "                          FROM OwnsStock AS Os "
+            + "                          INNER JOIN StockTransactions AS St "
+            + "                            ON Os.s_aid=St.s_aid "
+            + "                          INNER JOIN Transactions AS T "
+            + "                            ON T.transNum=St.transNum) AS Temp "
+            + "                 GROUP BY Temp.username) AS TempTwo "
+            + "        WHERE   TempTwo.SumProfit >= 10000) AS TempThree "
+            + "INNER JOIN Customer AS C "
+            + "  ON TempThree.username=C.username; ";
+        prepstmt = conn.prepareStatement(sql);
+        rs = prepstmt.executeQuery();
+        while(rs.next())
+        {
+          // Every 5 entries in ArrayList is one Customer
+          customers.add(rs.getString("username"));
+          customers.add(rs.getString("SumProfit"));
+          customers.add(rs.getString("firstName"));
+          customers.add(rs.getString("lastname"));
+          customers.add(rs.getString("email"));
+          customers.add(rs.getString("state"));
+        }
+      }
+      catch(SQLException se)
+      {
+        se.printStackTrace();
+        return null;
+      }
+      finally
+      {
+        close();
+      }
+      return customers;
+    }
 
     /*
         Queries the database to find out if the
