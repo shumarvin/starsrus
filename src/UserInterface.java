@@ -438,7 +438,7 @@ public class UserInterface
 		System.out.println("Welcome " + account.getFirstName() + " " +
 				account.getLastName() + "!");
 		System.out.println();
-
+		boolean isMarketOpen = dbAdapter.isMarketOpen();
 
 		/*
 			Make trader interface a loop so that they can continue to use
@@ -447,19 +447,43 @@ public class UserInterface
 		*/
 		while(true)
 		{
-			System.out.println("\n---|What would you like to do today?");
-			System.out.println();
-			System.out.println("---|1. Deposit into Market Account");
-			System.out.println("---|2. Withdraw from Market Account");
-			System.out.println("---|3. Buy Stocks");
-			System.out.println("---|4. Sell Stocks");
-			System.out.println("---|5. Show Market Account Balance");
-			System.out.println("---|6. Show Stock Transaction History");
-			System.out.println("---|7. List Current Stock Price and Actor Profile");
-			System.out.println("---|8. List Movie Information");
-			System.out.println("---|9. Log out");
-			System.out.println();
-			System.out.print("Input: ");
+			//if market is open, show buy and sell stocks options
+			if(isMarketOpen)
+			{
+				System.out.println("The market is open!");
+				System.out.println("\n---|What would you like to do today?");
+				System.out.println();
+				System.out.println("---|1. Deposit into Market Account");
+				System.out.println("---|2. Withdraw from Market Account");
+				System.out.println("---|3. Buy Stocks");
+				System.out.println("---|4. Sell Stocks");
+				System.out.println("---|5. Show Market Account Balance");
+				System.out.println("---|6. Show Stock Transaction History");
+				System.out.println("---|7. List Current Stock Price and Actor Profile");
+				System.out.println("---|8. List Movie Information");
+				System.out.println("---|9. Log out");
+				System.out.println();
+				System.out.print("Input: ");
+			}
+			else
+			{
+				//user can still do other stuff besides buying and selling
+				//if market is closed
+				System.out.println();
+				System.out.println("The market is closed. No buying or selling of stocks is allowed.");
+				System.out.println("\n---|What would you like to do today?");
+				System.out.println();
+				System.out.println("---|1. Deposit into Market Account");
+				System.out.println("---|2. Withdraw from Market Account");
+				System.out.println("---|3. Show Market Account Balance");
+				System.out.println("---|4. Show Stock Transaction History");
+				System.out.println("---|5. List Current Stock Price and Actor Profile");
+				System.out.println("---|6. List Movie Information");
+				System.out.println("---|7. Log out");
+				System.out.println();
+				System.out.print("Input: ");	
+			}
+
 			//check for non-int input
 			if(!reader.hasNextInt())
 			{
@@ -473,33 +497,56 @@ public class UserInterface
 				int choice = reader.nextInt();
 				reader.nextLine();
 				//handle invalid input
-				if(choice < 1 || choice > 9)
+				if((isMarketOpen && (choice < 1 || choice > 9)) || (!isMarketOpen && (choice < 1 || choice > 7)))
 				{
 					System.out.println("Invalid input. Please choose one of the 9 options below.");
 					continue;
 				}
-
-				//switch on choice
-				switch(choice)
+				if(isMarketOpen)
 				{
-					case 1: showDepositOrWithdraw(0);
-							break;
-					case 2: showDepositOrWithdraw(1);
-							break;
-					case 3: showBuy();
-							break;
-					case 4: showSell();
-							break;
-					case 5: showMarketBalance();
-							break;
-					case 6: showStockTransactions();
-							break;
-					case 7: showCurrentStockPrice();
-							break;
-					case 8: showMovieInfo();
-							break;
-					default: quit();
+					//switch on choice
+					switch(choice)
+					{
+						case 1: showDepositOrWithdraw(0);
+								break;
+						case 2: showDepositOrWithdraw(1);
+								break;
+						case 3: showBuy();
+								break;
+						case 4: showSell();
+								break;
+						case 5: showMarketBalance();
+								break;
+						case 6: showStockTransactions();
+								break;
+						case 7: showCurrentStockPrice();
+								break;
+						case 8: showMovieInfo();
+								break;
+						default: quit();
+					}
 				}
+				else
+				{
+					//switch on choice
+					switch(choice)
+					{
+						case 1: showDepositOrWithdraw(0);
+								break;
+						case 2: showDepositOrWithdraw(1);
+								break;
+						case 3: showMarketBalance();
+								break;
+						case 4: showStockTransactions();
+								break;
+						case 5: showCurrentStockPrice();
+								break;
+						case 6: showMovieInfo();
+								break;
+						default: quit();
+					}
+				}
+				
 			}
 		}
 	}
