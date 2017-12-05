@@ -1266,6 +1266,55 @@ public class DatabaseAdapter
       return true;
     }
     /*
+        Opens the market for buying and selling
+        @return true if successful, false otherwise
+    */
+    public boolean openMarket()
+    {
+        String openSql = "";
+        String incrementSql = "";
+        String incrementDate = "";
+        Date date = getCurrentDate();
+
+        try
+        {
+            connect(0);
+
+            //use transaction to update date table
+            conn.setAutoCommit(false);
+
+            //first set Open attribute to 1
+            openSql = "UPDATE Date SET Open = 1;";
+
+            //then, increment date by one day
+            incrementSql = "UPDATE Date SET currentDate = (SELECT DATE_ADD(?, INTERVAL 1 DAY));";
+
+
+            //set open attribute to 1
+            stmt = conn.createStatement();
+            stmt.executeUpdate(openSql);
+
+            //increment date by 1
+            prepstmt = conn.prepareStatement(incrementSql);
+            prepstmt.setObject(1, date);
+            prepstmt.executeUpdate();
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        }
+        catch(SQLException se)
+        {
+            // Delete failed for some reason
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
         Set date to the specified date
         @date date the new date to set to
         @return true if successuful, false otherwise
@@ -1294,10 +1343,6 @@ public class DatabaseAdapter
             close();
         }
         return true;
-    }
-    private void advanceDate()
-    {
-        //stub
     }
 
     public boolean changeStockPrice(String stocksymbol, float newprice)
