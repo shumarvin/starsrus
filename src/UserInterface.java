@@ -290,7 +290,7 @@ public class UserInterface
 		else
 		{
 			System.out.println("Error occurred. Please see above for details.");
-			System.out.println();	
+			System.out.println();
 		}
 	}
 	private void showMonthlyStatement()
@@ -299,7 +299,19 @@ public class UserInterface
 	}
 	private void showListActiveCustomers()
 	{
-		System.out.println("List Active Customers");
+		System.out.println("\nShowing customers who have traded >= 1,000 shares.\n");
+		ArrayList<String> activeCustomers = dbAdapter.getAllActiveCustomers();
+		System.out.println("-----Username-----SharesTraded"
+			+ "-----FirstName-----LastName-------------------Email");
+		for (int i = 0; i < activeCustomers.size(); i=i+6)
+		{
+			System.out.println(String.format("%13s", activeCustomers.get(i)) // username
+				+ String.format("%17s", activeCustomers.get(i+1)) // SumShares
+				+ String.format("%14s", activeCustomers.get(i+2)) // firstName
+				+ String.format("%13s", activeCustomers.get(i+3)) // lastName
+				+ String.format("%24s", activeCustomers.get(i+4)) // email
+				);
+		}
 	}
 	private void showGovTaxReport()
 	{
@@ -370,7 +382,7 @@ public class UserInterface
 		else
 		{
 			System.out.println("Error occurred. Please see above for details.");
-			System.out.println();	
+			System.out.println();
 		}
 	}
 	private void showCloseMarket()
@@ -384,10 +396,10 @@ public class UserInterface
 		else
 		{
 			System.out.println("Error occurred. Please see above for details.");
-			System.out.println();	
+			System.out.println();
 		}
 	}
-	private void showSetNewStockPrice() 
+	private void showSetNewStockPrice()
 	{
 		float newprice = -1;
 		System.out.println("\nWhich stock would you like to change?");
@@ -509,8 +521,8 @@ public class UserInterface
 				//user can still do other stuff besides buying and selling
 				//if market is closed
 				System.out.println();
-				System.out.println("The market is closed. No buying or selling of stocks is allowed.");
-				System.out.println("\n---|What would you like to do today?");
+				System.out.println("\nThe market is closed. No buying or selling of stocks is allowed.");
+				System.out.println("---|What would you like to do today?");
 				System.out.println();
 				System.out.println("---|1. Deposit into Market Account");
 				System.out.println("---|2. Withdraw from Market Account");
@@ -520,7 +532,7 @@ public class UserInterface
 				System.out.println("---|6. List Movie Information");
 				System.out.println("---|7. Log out");
 				System.out.println();
-				System.out.print("Input: ");	
+				System.out.print("Input: ");
 			}
 
 			//check for non-int input
@@ -585,7 +597,7 @@ public class UserInterface
 						default: return;
 					}
 				}
-				
+
 			}
 		}
 	}
@@ -817,7 +829,7 @@ public class UserInterface
 		System.out.println();
 		System.out.println("---Here are your stock transactions---");
 		System.out.println("TransNum----TransDate-----MarketIn-----MarketOut"
-		 + "----SharesIn----SharesOut----StockSymbol----Profit");
+		 + "----SharesIn----SharesOut----StockSymbol-------Profit");
 		for(Transaction trans : tlist)
 		{
 			System.out.println(String.format("%8s", trans.gettransNum())
@@ -827,7 +839,7 @@ public class UserInterface
 						+ String.format("%12s", trans.getsharesIn())
 						+ String.format("%13s", trans.getsharesOut())
 						+ String.format("%15s", trans.getstocksymbol())
-						+ String.format("%10s", formatter.format(trans.getprofit()))
+						+ String.format("%13s", formatter.format(trans.getprofit()))
 						);
 		}
 	}

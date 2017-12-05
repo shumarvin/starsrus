@@ -1270,6 +1270,48 @@ public class DatabaseAdapter
         return reviews;
     }
     // Manager methods
+    public ArrayList<String> getAllActiveCustomers(){
+      ArrayList<String> activeCustomers = new ArrayList<String>();
+      String sql = "";
+      try
+      {
+        connect(0);
+        sql = "SELECT TempThree.username, TempThree.SumShares, C.firstName, C.lastName, C.email "
+            + "FROM   (SELECT  TempTwo.username, TempTwo.SumShares "
+            + "        FROM    (SELECT  Temp.username, SUM(Temp.sharesIn+Temp.sharesOut) AS SumShares "
+            + "                 FROM    (SELECT Os.username, Os.s_aid, T.transNum, T.sharesIn, T.sharesOut "
+            + "                          FROM OwnsStock AS Os "
+            + "                          INNER JOIN StockTransactions AS St "
+            + "                            ON Os.s_aid=St.s_aid "
+            + "                          INNER JOIN Transactions AS T "
+            + "                            ON T.transNum=St.transNum) AS Temp"
+            + "                 GROUP BY Temp.username) AS TempTwo "
+            + "        WHERE   TempTwo.SumShares >= 1000) AS TempThree "
+            + "INNER JOIN Customer AS C "
+            + "ON TempThree.username=C.username; ";
+        prepstmt = conn.prepareStatement(sql);
+        rs = prepstmt.executeQuery();
+        while(rs.next())
+        {
+          // Every 5 entries in ArrayList is one Customer
+          activeCustomers.add(rs.getString("username"));
+          activeCustomers.add(rs.getString("SumShares"));
+          activeCustomers.add(rs.getString("firstName"));
+          activeCustomers.add(rs.getString("lastname"));
+          activeCustomers.add(rs.getString("email"));
+        }
+      }
+      catch(SQLException se)
+      {
+        se.printStackTrace();
+        return null;
+      }
+      finally
+      {
+        close();
+      }
+      return activeCustomers;
+    }
     public ArrayList<String> getAllCustomers(){
       ArrayList<String> customerAccounts = new ArrayList<String>();
       String sql = "";
@@ -1335,7 +1377,7 @@ public class DatabaseAdapter
 
             /*
                 Generate a hashmap associating each customer with the amount
-                he/she will make from the interest. This will be used to 
+                he/she will make from the interest. This will be used to
                 record the transaction
             */
             customerProfitSql = "SELECT m_aid, runningbalance FROM OwnsMarket;";
@@ -1349,7 +1391,7 @@ public class DatabaseAdapter
 
             try
             {
-                 //for the rest, do a SQL transaction 
+                 //for the rest, do a SQL transaction
                 conn.setAutoCommit(false);
 
                 //add interest to each of the accounts
@@ -1367,7 +1409,7 @@ public class DatabaseAdapter
                     float interest = (Float) pair.getValue();
 
                     //first insert into Transactions
-                    recordTransactionSql = "INSERT INTO Transactions(transDate, marketIn, profit)" 
+                    recordTransactionSql = "INSERT INTO Transactions(transDate, marketIn, profit)"
                                         + "VALUES (?,?,?);";
 
                     //then insert into MarketTransactions
@@ -1393,7 +1435,7 @@ public class DatabaseAdapter
                 stmt.executeUpdate(resetRunningBalanceSql);
 
                 conn.commit();
-                conn.setAutoCommit(true);            
+                conn.setAutoCommit(true);
             }
             catch(SQLException se)
             {
@@ -1401,7 +1443,7 @@ public class DatabaseAdapter
                 conn.rollback();
                 return false;
             }
-            
+
         }
         catch(SQLException se)
         {
@@ -1488,7 +1530,7 @@ public class DatabaseAdapter
                 conn.rollback();
                 return false;
             }
-            
+
         }
         catch(SQLException se)
         {
@@ -1517,7 +1559,7 @@ public class DatabaseAdapter
         {
             connect(0);
 
-            //use transaction to update both Date and OwnsMarket 
+            //use transaction to update both Date and OwnsMarket
             conn.setAutoCommit(false);
 
             //first, close the market
@@ -1544,7 +1586,7 @@ public class DatabaseAdapter
                 stmt.executeUpdate(updateClosingPriceSql);
                 
                 conn.commit();
-                conn.setAutoCommit(true);   
+                conn.setAutoCommit(true);
             }
             catch(SQLException se)
             {
@@ -1552,7 +1594,7 @@ public class DatabaseAdapter
                 conn.rollback();
                 return false;
             }
-            
+
         }
         catch(SQLException se)
         {
