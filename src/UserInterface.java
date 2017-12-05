@@ -281,7 +281,8 @@ public class UserInterface
 	}
 	private void showAddInterest()
 	{
-		System.out.println("Adding interest");
+		System.out.println("Adding interest....");
+		dbAdapter.addInterest();
 	}
 	private void showMonthlyStatement()
 	{

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
+import java.util.Iterator;
+import java.util.Map;
 
 public class DatabaseAdapter
 {
@@ -1232,6 +1234,113 @@ public class DatabaseAdapter
 
 
     /*
+        Adds interest to all the market accounts
+    */
+    public boolean addInterest()
+    {
+        String monthlyInterestSql = "";
+        String customerProfitSql = "";
+        String addInterestSql = "";
+        String recordTransactionSql = "";
+        String recordMarketTransactionSql = "";
+        String resetRunningBalanceSql = "";
+        float interestRate = -1;
+        Date date = getCurrentDate();
+        HashMap<Integer, Float> customerInterest = new HashMap<Integer, Float>();
+
+        try
+        {
+            connect(0);
+
+            //first get monthly interest rate
+            monthlyInterestSql = "SELECT monthlyInterest FROM Interest;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(monthlyInterestSql);
+            while(rs.next())
+                interestRate = rs.getFloat("monthlyInterest");
+
+            /*
+                Generate a hashmap associating each customer with the amount
+                he/she will make from the interest. This will be used to 
+                record the transaction
+            */
+            customerProfitSql = "SELECT m_aid, runningbalance FROM OwnsMarket;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(customerProfitSql);
+            while(rs.next())
+            {
+                customerInterest.put(rs.getInt("m_aid"), rs.getFloat("runningbalance") * interestRate);
+
+            }
+
+            try
+            {
+                 //for the rest, do a SQL transaction 
+                conn.setAutoCommit(false);
+
+                //add interest to each of the accounts
+                addInterestSql = "UPDATE OwnsMarket SET mbalance = mbalance + (runningbalance) * ?";
+                prepstmt = conn.prepareStatement(addInterestSql);
+                prepstmt.setFloat(1, interestRate);
+                prepstmt.executeUpdate();
+
+                //record the transaction for each customer
+                Iterator it = customerInterest.entrySet().iterator();
+                while(it.hasNext())
+                {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    int m_aid = (Integer) pair.getKey();
+                    float interest = (Float) pair.getValue();
+
+                    //first insert into Transactions
+                    recordTransactionSql = "INSERT INTO Transactions(transDate, marketIn, profit)" 
+                                        + "VALUES (?,?,?);";
+
+                    //then insert into MarketTransactions
+                    recordMarketTransactionSql = "INSERT INTO MarketTransactions (m_aid,transNum) "
+                                        + "VALUES (?, LAST_INSERT_ID());";
+
+                    //insert into transactions
+                    prepstmt = conn.prepareStatement(recordTransactionSql);
+                    prepstmt.setDate(1, date);
+                    prepstmt.setFloat(2, interest);
+                    prepstmt.setFloat(3, interest);
+                    prepstmt.executeUpdate();
+
+                    //insert into MarketTransactions
+                    prepstmt = conn.prepareStatement(recordMarketTransactionSql);
+                    prepstmt.setInt(1, m_aid);
+                    prepstmt.executeUpdate();
+                }
+
+                //reset running balance
+                resetRunningBalanceSql = "UPDATE OwnsMarket SET runningbalance = 0;";
+                stmt = conn.createStatement();
+                stmt.executeUpdate(resetRunningBalanceSql);
+
+                conn.commit();
+                conn.setAutoCommit(true);            
+            }
+            catch(SQLException se)
+            {
+                se.printStackTrace();
+                conn.rollback();
+                return false;
+            }
+            
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return true;
+    }
+    /*
         Delete all transactions in the database
         @return true if successful, false otherwise
     */
@@ -1340,8 +1449,7 @@ public class DatabaseAdapter
 
             //then, for each customer, add their current market balance
             //to their running balance for the month
-            addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance "
-                            + "WHERE m_aid IN (SELECT M.m_aid FROM (SELECT * FROM OwnsMarket) as M);";
+            addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance;";
 
             try
             {
