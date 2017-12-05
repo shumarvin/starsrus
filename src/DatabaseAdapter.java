@@ -413,6 +413,36 @@ public class DatabaseAdapter
         }
         return date;
     }
+    public boolean isMarketOpen()
+    {
+        String sql = "";
+        boolean isMarketOpen = false;
+
+        try
+        {
+            connect(0);
+
+            sql = "SELECT Open FROM Date;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            while(rs.next())
+            {
+                if(rs.getInt("Open") == 1)
+                    isMarketOpen = true;
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return false;
+        }
+        finally
+        {
+            close();
+        }
+        return isMarketOpen;
+    }
     /*
         Gets all the stocks and their prices
         @return stocks a Hashmap of all the
