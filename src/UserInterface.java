@@ -282,7 +282,16 @@ public class UserInterface
 	private void showAddInterest()
 	{
 		System.out.println("Adding interest....");
-		dbAdapter.addInterest();
+		if(dbAdapter.addInterest())
+		{
+			System.out.println("Successfully added interest to all accounts.");
+			System.out.println();
+		}
+		else
+		{
+			System.out.println("Error occurred. Please see above for details.");
+			System.out.println();	
+		}
 	}
 	private void showMonthlyStatement()
 	{
