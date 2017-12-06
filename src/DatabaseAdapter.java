@@ -152,6 +152,8 @@ public class DatabaseAdapter
                   account = new Account(username, password, null, null, null, null, null, -1);
                 }
             }
+            else
+                account = new Account();
         }
         catch(SQLException se)
         {
