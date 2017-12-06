@@ -1583,12 +1583,6 @@ public class DatabaseAdapter
           }
       return customerAccounts;
     }
-    public ArrayList<String> CustomerReport(String username)
-    {
-      ArrayList<String> cReport = new ArrayList<String>();
-      String sql = "";
-      return null;
-    }
     /*
         Adds interest to all the market accounts
         @return true if successful, false otherwise
@@ -1596,12 +1590,15 @@ public class DatabaseAdapter
     public boolean addInterest()
     {
         String monthlyInterestSql = "";
+        String runningbalanceSql = "";
         String customerProfitSql = "";
         String addInterestSql = "";
         String recordTransactionSql = "";
         String recordMarketTransactionSql = "";
         String resetRunningBalanceSql = "";
+        String resetRunningDaysSql = "";
         float interestRate = -1;
+        int runningDays = -1;
         Date date = getCurrentDate();
         HashMap<Integer, Float> customerInterest = new HashMap<Integer, Float>();
 
@@ -1616,6 +1613,15 @@ public class DatabaseAdapter
             while(rs.next())
                 interestRate = rs.getFloat("monthlyInterest");
 
+            //get number of days since last interest calculation
+            runningbalanceSql = "SELECT runningDays FROM Date;";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(runningbalanceSql);
+            while(rs.next())
+            {
+                runningDays = rs.getInt("runningDays");
+            }
+
             /*
                 Generate a hashmap associating each customer with the amount
                 he/she will make from the interest. This will be used to
@@ -1626,7 +1632,7 @@ public class DatabaseAdapter
             rs = stmt.executeQuery(customerProfitSql);
             while(rs.next())
             {
-                customerInterest.put(rs.getInt("m_aid"), rs.getFloat("runningbalance") * interestRate);
+                customerInterest.put(rs.getInt("m_aid"), (float)(rs.getFloat("runningbalance")/runningDays * interestRate));
 
             }
 
@@ -1636,9 +1642,10 @@ public class DatabaseAdapter
                 conn.setAutoCommit(false);
 
                 //add interest to each of the accounts
-                addInterestSql = "UPDATE OwnsMarket SET mbalance = mbalance + (runningbalance) * ?";
+                addInterestSql = "UPDATE OwnsMarket SET mbalance = mbalance + (runningbalance/? * ?)";
                 prepstmt = conn.prepareStatement(addInterestSql);
-                prepstmt.setFloat(1, interestRate);
+                prepstmt.setInt(1, runningDays);
+                prepstmt.setFloat(2, interestRate);
                 prepstmt.executeUpdate();
 
                 //record the transaction for each customer
@@ -1674,6 +1681,11 @@ public class DatabaseAdapter
                 resetRunningBalanceSql = "UPDATE OwnsMarket SET runningbalance = 0;";
                 stmt = conn.createStatement();
                 stmt.executeUpdate(resetRunningBalanceSql);
+
+                //reset running days
+                resetRunningDaysSql = "UPDATE Date SET runningDays=0;";
+                stmt= conn.createStatement();
+                stmt.executeUpdate(resetRunningDaysSql);
 
                 conn.commit();
                 conn.setAutoCommit(true);
@@ -1795,6 +1807,7 @@ public class DatabaseAdapter
     {
         String closeSql = "";
         String addBalanceSql = "";
+        String runningbalanceSql = "";
         String updateClosingPriceSql = "";
         try
         {
@@ -1810,6 +1823,9 @@ public class DatabaseAdapter
             //to their running balance for the month
             addBalanceSql = "UPDATE OwnsMarket SET runningbalance = runningbalance + mbalance;";
 
+            //increment running days tally for interest
+            runningbalanceSql = "UPDATE Date SET runningDays = runningDays + 1;";
+
             //finally, set each stock's closing price
             updateClosingPriceSql = "UPDATE Stock SET closingprice = currentprice;";
 
@@ -1823,6 +1839,11 @@ public class DatabaseAdapter
                 stmt = conn.createStatement();
                 stmt.executeUpdate(addBalanceSql);
 
+                //update running balance
+                stmt = conn.createStatement();
+                stmt.executeUpdate(runningbalanceSql);
+
+                //update closing prices
                 stmt = conn.createStatement();
                 stmt.executeUpdate(updateClosingPriceSql);
                 
