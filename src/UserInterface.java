@@ -304,9 +304,12 @@ public class UserInterface
 			System.out.println("Which customer would you like to generate a monthly statement for?");
 			System.out.println();
 			ArrayList<Account> customers = dbAdapter.getAllCustomers();
-			for(Account customer: customers)
+			System.out.println("\nChoose a customer username from below");
+			System.out.println("---Customer Profiles---\n");
+			System.out.println("-----Username");
+			for (Account customer: customers)
 			{
-				System.out.println(customer.getUsername());
+				System.out.println(String.format("%13s", customer.getUsername()));
 			}
 			System.out.println();
 
