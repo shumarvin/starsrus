@@ -385,7 +385,7 @@ public class UserInterface
 				+ String.format("%14s", customers.get(i+2)) // firstName
 				+ String.format("%13s", customers.get(i+3)) // lastName
 				+ String.format("%24s", customers.get(i+4)) // email
-				+ String.format("%8s", customers.get(i+5)) // email
+				+ String.format("%8s", customers.get(i+5)) // state
 				);
 		}
 	}
