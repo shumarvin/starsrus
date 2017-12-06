@@ -217,8 +217,8 @@ public class UserInterface
 		System.out.println();
 		System.out.println("Welcome " + account.getUsername() + "!");
 		while(true){
-			System.out.println("Current date: " + dbAdapter.getCurrentDate());
-			System.out.println("\n---|What would you like to do today?");
+			System.out.println("\nCurrent date: " + dbAdapter.getCurrentDate());
+			System.out.println("---|What would you like to do today?");
 			System.out.println();
 			System.out.println("---|1. Add interest");
 			System.out.println("---|2. Generate Monthly Statement");
@@ -298,7 +298,7 @@ public class UserInterface
 	{
 		while(true)
 		{
-			//show all customers and prompt user to select one 
+			//show all customers and prompt user to select one
 			System.out.println("Which customer would you like to generate a monthly statement for?");
 			System.out.println();
 			ArrayList<Account> customers = dbAdapter.getAllCustomers();
@@ -543,9 +543,9 @@ public class UserInterface
 			//if market is open, show buy and sell stocks options
 			if(isMarketOpen)
 			{
-				System.out.println("The market is open!");
+				System.out.println("\nThe market is open!");
 				System.out.println("Current date: " + dbAdapter.getCurrentDate());
-				System.out.println("\n---|What would you like to do today?");
+				System.out.println("---|What would you like to do today?");
 				System.out.println();
 				System.out.println("---|1. Deposit into Market Account");
 				System.out.println("---|2. Withdraw from Market Account");
