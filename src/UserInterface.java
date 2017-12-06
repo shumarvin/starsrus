@@ -280,6 +280,7 @@ public class UserInterface
 			}
 		}
 	}
+	//add interest user interface
 	private void showAddInterest()
 	{
 		System.out.println("Adding interest....");
@@ -320,16 +321,16 @@ public class UserInterface
 				ArrayList<Transaction> transactions = dbAdapter.getMonthTransactions(username);
 				//sort them by date
 				Collections.sort(transactions, new SortByDate());
-				System.out.println("TransNum----TransDate-----MarketIn-----MarketOut"
-		 					+ "----SharesIn----SharesOut----StockSymbol-------Profit");
+				System.out.println("TransNum----TransDate------Deposit-----Withdrawal"
+		 				+ "----SharesBought----SharesSold----StockSymbol-------Profit");
 				for(Transaction trans : transactions)
 				{
 					System.out.println(String.format("%8s", trans.gettransNum())
 						+ String.format("%13s", trans.gettransDate())
 						+ String.format("%13s", formatter.format(trans.getmarketIn()))
-						+ String.format("%14s", formatter.format(trans.getmarketOut()))
-						+ String.format("%12s", trans.getsharesIn())
-						+ String.format("%13s", trans.getsharesOut())
+						+ String.format("%15s", formatter.format(trans.getmarketOut()))
+						+ String.format("%16s", trans.getsharesIn())
+						+ String.format("%14s", trans.getsharesOut())
 						+ String.format("%15s", trans.getstocksymbol())
 						+ String.format("%13s", formatter.format(trans.getprofit()))
 						);
