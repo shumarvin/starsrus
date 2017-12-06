@@ -1314,6 +1314,13 @@ public class DatabaseAdapter
         return reviews;
     }
     // Manager methods
+
+    /*
+        Returns a list of all customers that need to be on
+        the DTER
+        @return customers the info of all customers that
+        need to be on the DTER
+    */
     public ArrayList<String> getGovtTaxReport()
     {
       ArrayList<String> customers = new ArrayList<String>();
