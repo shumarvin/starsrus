@@ -1575,7 +1575,7 @@ public class DatabaseAdapter
             rs = prepstmt.executeQuery();
             while(rs.next())
             {
-                Account currentAccount = new Account(rs.getString("username"), "", rs.getString("firstName"), rs.getString("lastName"), "", rs.getString("phone"),rs.getString("email"), -1);
+                Account currentAccount = new Account(rs.getString("username"), "", rs.getString("firstName"), rs.getString("lastName"), rs.getString("state"), rs.getString("phone"),rs.getString("email"), -1);
                 customerAccounts.add(currentAccount);
             }
           }
