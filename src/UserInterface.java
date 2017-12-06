@@ -319,7 +319,11 @@ public class UserInterface
 			System.out.println();
 			if(dbAdapter.hasCustomer(username))
 			{
+				//print out customer's name and email
 				Account user = dbAdapter.getAccount(username);
+				System.out.println("Name: " + user.getFirstName() + " " + user.getLastName());
+				System.out.println("Email: " + user.getEmail());
+
 				//get all transactions in current month and print them out
 				ArrayList<Transaction> transactions = dbAdapter.getMonthTransactions(username);
 				//sort them by date
@@ -366,6 +370,7 @@ public class UserInterface
 				);
 		}
 	}
+	//DTER user interface
 	private void showGovTaxReport()
 	{
 		System.out.println("\nGenerate Government Tax Report");
@@ -454,6 +459,7 @@ public class UserInterface
 			System.out.println();
 		}
 	}
+	//close market user interface
 	private void showCloseMarket()
 	{
 		System.out.println("Closing Market.....");
@@ -468,6 +474,7 @@ public class UserInterface
 			System.out.println();
 		}
 	}
+	//set new stock price user interface
 	private void showSetNewStockPrice()
 	{
 		float newprice = -1;
