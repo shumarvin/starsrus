@@ -115,6 +115,7 @@ public class DatabaseAdapter
     {
         //create query
         String sql = "";
+        Account account =  null;
         try
         {
             connect(0);
@@ -140,24 +141,65 @@ public class DatabaseAdapter
             */
             if(rs.next())
             {
-                if (accountType == 0) {
-                  return new Account(username, password, rs.getString("firstName"),
+                if (accountType == 0) 
+                {
+                  account = new Account(username, password, rs.getString("firstName"),
                   rs.getString("lastName"),rs.getString("state"), rs.getString("phone"),
                   rs.getString("email"),rs.getInt("taxid"));
-                }else{
-                  return new Account(username, password, null, null, null, null, null, -1);
+                }
+                else
+                {
+                  account = new Account(username, password, null, null, null, null, null, -1);
                 }
             }
         }
         catch(SQLException se)
         {
             se.printStackTrace();
+            return account;
         }
         finally
         {
             close();
         }
-        return new Account();
+        return account;
+    }
+    /*
+        Gets the account associated with the username
+        Precondition: username is valid
+        @param username the username of the account
+        @return Account the account associated with the username
+    */
+    public Account getAccount(String username)
+    {
+        String sql = "";
+        Account account = null;
+        try
+        {
+            connect(0);
+
+            sql = "SELECT * FROM Customer WHERE username=?;";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            rs = prepstmt.executeQuery();
+
+            while(rs.next())
+            {
+                account = new Account(username, rs.getString("password"), rs.getString("firstName"),
+                  rs.getString("lastName"),rs.getString("state"), rs.getString("phone"),
+                  rs.getString("email"),rs.getInt("taxid"));
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+            return account;
+        }
+        finally
+        {
+            close();
+        }
+        return account;
     }
     /*
         Create account.
@@ -276,7 +318,7 @@ public class DatabaseAdapter
             if(updateType == 0)
             {
                 updateSql = "UPDATE OwnsMarket O "
-                            + "SET mbalance= mbalance + ? WHERE username=?";;
+                            + "SET mbalance= mbalance + ? WHERE username=?;";
                 insertSqlTransaction = "INSERT INTO Transactions (transDate, marketIn) "
                             + "VALUES (?,?); ";
 
@@ -289,7 +331,7 @@ public class DatabaseAdapter
             else
             {
                 updateSql = "UPDATE OwnsMarket O "
-                            + "SET mbalance= mbalance - ? WHERE username=?";
+                            + "SET mbalance= mbalance - ? WHERE username=?;";
                 insertSqlTransaction = "INSERT INTO Transactions (transDate, marketOut) "
                             + "VALUES (?,?); ";
 
@@ -890,6 +932,8 @@ public class DatabaseAdapter
 
     /*
         Method to get an account's owned stocks
+        @param account the account
+        @return stocks an ArrayList of stocks owned by that account
     */
     public ArrayList<OwnedStocks> getOwnedStocks(Account account)
     {
@@ -962,14 +1006,15 @@ public class DatabaseAdapter
 
     /*
         Method to get a trader's stock transactions.
-        @return movies all the movie names in an ArrayList
+        @return transactionsAList an Arraylist of all the
+                transactions for that account
     */
     public ArrayList<Transaction> getTransactions(Account account)
     {
       String sql = "";
       String username = account.getUsername();
       int s_aid = -1;
-      ArrayList<Transaction> TransactionsAList = new ArrayList<Transaction>();
+      ArrayList<Transaction> transactionsAList = new ArrayList<Transaction>();
       try
       {
           connect(0);
@@ -992,7 +1037,7 @@ public class DatabaseAdapter
           rs = prepstmt.executeQuery();
           while(rs.next())
           {
-              TransactionsAList.add(new Transaction(
+              transactionsAList.add(new Transaction(
                 rs.getInt("transNum"),
                 rs.getDate("transDate"),
                 rs.getFloat("marketIn"),
@@ -1012,8 +1057,7 @@ public class DatabaseAdapter
       {
           close();
       }
-
-      return TransactionsAList;
+      return transactionsAList;
     }
     // Method to get actor profile and movie contracts for that actor
     public ArrayList<String> getActorProfile(String stocksymbol)
@@ -1271,6 +1315,113 @@ public class DatabaseAdapter
     }
     // Manager methods
 
+    /*
+        For a given user, gets all of that user's transactions
+        for the current month
+        @param username the user 
+        @return transactionsList an ArrayList of Transactions for the
+                user for the current month
+    */
+    public ArrayList<Transaction> getMonthTransactions(String username)
+    {
+        String currentMonthSql = "";
+        String sql = "";
+        int s_aid = -1;
+        int m_aid = -1;
+        int currentMonth = -1;
+        Date currentDate = getCurrentDate();
+        ArrayList<Transaction> transactionsList = new ArrayList<Transaction>();
+        try
+        {
+            connect(0);
+  
+            //first, get current month
+            currentMonthSql = "SELECT MONTH(?) AS currentMonth;";
+            prepstmt = conn.prepareStatement(currentMonthSql);
+            prepstmt.setDate(1, currentDate);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+                currentMonth = rs.getInt("currentMonth");
+
+            // Then, get s_aid using account's username.
+            sql = "SELECT * FROM OwnsStock S WHERE S.username=?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            rs = prepstmt.executeQuery();
+            while (rs.next())
+            {
+                s_aid = rs.getInt("s_aid");
+            }
+
+            //Also get m_aid using account's username
+            sql = "SELECT * FROM OwnsMarket M WHERE M.username=?";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setString(1, username);
+            rs = prepstmt.executeQuery();
+            while (rs.next())
+            {
+                m_aid = rs.getInt("m_aid");
+            }
+
+            // Get all stock transactions that the user made in the current month
+            sql = "SELECT * FROM Transactions T "
+                + "WHERE T.transNum IN (SELECT S.transNum FROM StockTransactions S WHERE S.s_aid=? " + 
+                        "AND MONTH(T.transDate) = ?);";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setInt(1, s_aid);
+            prepstmt.setInt(2, currentMonth);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+            {
+              transactionsList.add(new Transaction(
+                rs.getInt("transNum"),
+                rs.getDate("transDate"),
+                rs.getFloat("marketIn"),
+                rs.getFloat("marketOut"),
+                rs.getFloat("sharesIn"),
+                rs.getFloat("sharesOut"),
+                rs.getString("stocksymbol"),
+                rs.getFloat("profit")));
+            }
+
+            //Get all market transactions that the user made in the current month while making sure
+            //to ignore all those already included in stock transactions
+            sql = "SELECT * FROM Transactions T "
+                + "WHERE T.transNum IN (SELECT M.transNum FROM MarketTransactions M WHERE M.m_aid=? " + 
+                        "AND MONTH(T.transDate) = ?) AND T.transNum NOT IN "
+                                + "(SELECT T2.transNum FROM Transactions T2 WHERE T2.transNum IN "
+                                    + "(SELECT S.transNum FROM StockTransactions S WHERE S.s_aid=? AND MONTH(T2.transDate) = ?));";
+            prepstmt = conn.prepareStatement(sql);
+            prepstmt.setInt(1, m_aid);
+            prepstmt.setInt(2,currentMonth);
+            prepstmt.setInt(3, s_aid);
+            prepstmt.setInt(4, currentMonth);
+            rs = prepstmt.executeQuery();
+            while(rs.next())
+            {
+                transactionsList.add(new Transaction(
+                rs.getInt("transNum"),
+                rs.getDate("transDate"),
+                rs.getFloat("marketIn"),
+                rs.getFloat("marketOut"),
+                rs.getFloat("sharesIn"),
+                rs.getFloat("sharesOut"),
+                rs.getString("stocksymbol"),
+                rs.getFloat("profit")));
+            }
+
+      }
+      catch(SQLException se)
+      {
+          se.printStackTrace();
+          return null;
+      }
+      finally
+      {
+          close();
+      }
+      return transactionsList;
+    }
     /*
         Queries the database to find out if the
         customer with the specified username exists

@@ -1,6 +1,8 @@
 import java.sql.Date;
+import java.util.Comparator;
 
-public class Transaction{
+public class Transaction
+{
   int transNum;
   Date transDate;
   float marketIn;
@@ -84,5 +86,14 @@ public class Transaction{
   }
   public void setprofit(float input){
     profit = input;
+  }
+}
+
+//comparator to sort by transDate
+class SortByDate implements Comparator<Transaction>
+{
+  public int compare(Transaction a, Transaction b)
+  {
+    return a.gettransDate().compareTo(b.gettransDate());
   }
 }
